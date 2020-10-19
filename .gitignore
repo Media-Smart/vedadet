@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # custom
-workdir
+workdir/
