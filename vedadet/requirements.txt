@@ -1,0 +1,7 @@
+pycocotools==12.0
+torchvision==0.7.0
+torch==1.6.0
+terminaltables==3.1.0
+albumentations==0.4.6
+imagecorruptions==1.1.0
+instaboostfast==0.1.2
