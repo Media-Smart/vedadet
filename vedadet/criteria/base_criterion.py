@@ -3,8 +3,6 @@ from collections import OrderedDict
 import torch
 import torch.distributed as dist
 
-from vedadet.misc import get_root_logger
-
 
 class BaseCriterion(metaclass=ABCMeta):
     def __init__(self):

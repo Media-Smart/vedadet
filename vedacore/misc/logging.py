@@ -1,6 +1,5 @@
 # adapted from https://github.com/open-mmlab/mmcv
 import logging
-import torch.distributed as dist
 
 from ..parallel import get_dist_info
 
