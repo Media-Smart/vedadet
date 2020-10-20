@@ -1,3 +1,5 @@
+from torch.nn.utils import clip_grad
+
 from .base_hook import BaseHook
 from vedacore.misc import registry
 
@@ -18,4 +20,7 @@ class OptimizerHook(BaseHook):
         results = looper.cur_train_results
         optimizer.zero_grad()
         results['loss'].backward()
+        if self.grad_clip is not None:
+            detector = looper.train_engine.detector
+            grad_norm = self.clip_grads(detector.parameters())
         optimizer.step()

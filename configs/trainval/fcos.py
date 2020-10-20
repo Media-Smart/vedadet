@@ -1,23 +1,25 @@
 # 1. data
 dataset_type = 'CocoDataset'
 data_root = '/media/data/datasets/COCO2017/'
-img_norm_cfg = dict(mean=[102.9801, 115.9465, 122.7717],
-                    std=[1.0, 1.0, 1.0],
-                    to_rgb=False)
+#img_norm_cfg = dict(mean=[102.9801, 115.9465, 122.7717],
+#                    std=[1.0, 1.0, 1.0],
+#                    to_rgb=False)
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 size_divisor = 32
 
 data = dict(
-    samples_per_gpu=2,
-    workers_per_gpu=2,
+    samples_per_gpu=3,
+    workers_per_gpu=3,
     train=dict(
         typename=dataset_type,
-        ann_file=data_root + 'annotations/instances_minitrain2017.json',
+        ann_file=data_root + 'annotations/instances_train2017.json',
         img_prefix=data_root + 'train2017/',
         pipeline=[
             dict(typename='LoadImageFromFile'),
             dict(typename='LoadAnnotations', with_bbox=True),
             dict(typename='Resize', img_scale=(1333, 800), keep_ratio=True),
-            dict(typename='RandomFlip', flip_ratio=0.0),
+            dict(typename='RandomFlip', flip_ratio=0.5),
             dict(typename='Normalize', **img_norm_cfg),
             dict(typename='Pad', size_divisor=size_divisor),
             dict(typename='DefaultFormatBundle'),
@@ -26,8 +28,8 @@ data = dict(
        ]),
     val=dict(
         typename=dataset_type,
-        ann_file=data_root + 'annotations/instances_minitrain2017.json',
-        img_prefix=data_root + 'train2017/',
+        ann_file=data_root + 'annotations/instances_val2017.json',
+        img_prefix=data_root + 'val2017/',
         pipeline=[
             dict(typename='LoadImageFromFile'),
             dict(typename='MultiScaleFlipAug',
@@ -54,15 +56,17 @@ regress_ranges = ((-1, 64), (64, 128), (128, 256),
 
 detector = dict(
     typename='SingleStageDetector',
-    backbone=dict(typename='ResNet',
-                      depth=50,
-                      num_stages=4,
-                      out_indices=(0, 1, 2, 3),
-                      frozen_stages=1,
-                      norm_cfg=dict(typename='BN', requires_grad=False),
-                      norm_eval=True,
-                      style='caffe'
-                      ),
+    backbone=dict(
+        typename='ResNet',
+        depth=50,
+        num_stages=4,
+        out_indices=(0, 1, 2, 3),
+        frozen_stages=1,
+        norm_cfg=dict(
+            typename='BN', 
+            requires_grad=True),
+        norm_eval=True,
+        style='pytorch'),
     neck=dict(
         typename='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -102,15 +106,20 @@ train_engine = dict(
             gamma=2.0,
             alpha=0.25,
             loss_weight=1.0),
-        loss_bbox=dict(typename='IoULoss', loss_weight=1.0),
-        loss_centerness=dict(typename='CrossEntropyLoss',
-                             use_sigmoid=True,
-                             loss_weight=1.0)),
+        loss_bbox=dict(
+            typename='IoULoss', 
+            loss_weight=1.0),
+        loss_centerness=dict(
+            typename='CrossEntropyLoss',
+            use_sigmoid=True,
+            loss_weight=1.0)),
     optimizer=dict(
         typename='SGD',
-        lr=0.02,
+        lr=0.005,
         momentum=0.9,
-        weight_decay=0.0001))
+        weight_decay=0.0001,
+        paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.)
+        ))
 
 ## 3.2 val engine
 val_engine = dict(
@@ -130,13 +139,16 @@ val_engine = dict(
 
 # 4. hooks
 hooks = [
-        dict(typename='OptimizerHook'),
+        dict(
+            typename='OptimizerHook',
+            grad_clip=dict(max_norm=35, norm_type=2)
+            ),
         dict(
             typename='StepLrSchedulerHook',
             step=[8, 11],
-            warmup='linear',
+            warmup='constant',
             warmup_iters=500,
-            warmup_ratio=0.001
+            warmup_ratio=1.0 / 10
             ),
         dict(typename='EvalHook'),
         dict(

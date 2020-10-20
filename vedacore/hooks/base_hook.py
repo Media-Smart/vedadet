@@ -42,13 +42,13 @@ class BaseHook:
         self.after_iter(looper)
 
     def every_n_epochs(self, looper, n):
-        return (looper.epoch + 1) % n == 0 if n > 0 else False
+        return looper.epoch % n == 0 if n > 0 else False
 
     def every_n_inner_iters(self, looper, n):
-        return (looper.inner_iter + 1) % n == 0 if n > 0 else False
+        return looper.inner_iter % n == 0 if n > 0 else False
 
     def every_n_iters(self, looper, n):
-        return (looper.iter + 1) % n == 0 if n > 0 else False
+        return looper.iter % n == 0 if n > 0 else False
 
     def end_of_epoch(self, looper):
         return looper.inner_iter + 1 == len(looper.data_loader)

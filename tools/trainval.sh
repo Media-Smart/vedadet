@@ -6,11 +6,9 @@ if (($# < 2)); then
 fi
 CONFIG="$1"
 GPUS="$2"
-echo "Using gpu ${GPUS}"
 
 IFS=', ' read -r -a gpus <<< ${GPUS}
 NGPUS=${#gpus[@]}
-echo "ngpus ${NGPUS}"
 PORT="$((29400 + RANDOM % 100))"
 
 export CUDA_VISIBLE_DEVICES=${GPUS}

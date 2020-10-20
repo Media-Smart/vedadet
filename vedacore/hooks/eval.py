@@ -80,9 +80,11 @@ class EvalHook(BaseHook):
         if world_size > 1:
             all_results = collect_results_cpu(results, len(looper.val_dataset),
                                           self.tmpdir)
-        looper.his_val_results = None
+        else:
+            all_results = results
         if rank == 0:
             metric = looper.val_dataset.evaluate(all_results, logger=logger)
             for k, v in metric.items():
                 if 'copypaste' in k:
                     logger.info(f'{k}: {v}')
+        looper.his_val_results = None

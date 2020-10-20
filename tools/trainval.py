@@ -9,8 +9,9 @@ import warnings
 import torch
 
 from vedacore.misc import mkdir_or_exist, Config
-from vedadet.misc import get_root_logger
 from vedacore.misc import set_random_seed
+from vedacore.parallel import init_dist
+from vedadet.misc import get_root_logger
 from vedadet.assembler import trainval
 
 
@@ -32,6 +33,12 @@ def main():
     args = parse_args()
 
     cfg = Config.fromfile(args.config)
+
+    if args.launcher == 'none':
+        distributed = False
+    else:
+        distributed = True
+        init_dist(args.launcher, **cfg.dist_params)
 
     # workdir is determined in this priority: CLI > segment in file > filename
     if args.workdir is not None:
@@ -56,9 +63,9 @@ def main():
     log_file = osp.join(cfg.workdir, f'{timestamp}.log')
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
-    print('local_rank', args.local_rank)
+    #print('local_rank', args.local_rank)
 
-    trainval(cfg, args.launcher, logger)
+    trainval(cfg, distributed, logger)
 
 
 if __name__ == '__main__':

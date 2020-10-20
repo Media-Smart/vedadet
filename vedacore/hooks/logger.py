@@ -3,7 +3,6 @@ import torch
 from collections import OrderedDict
 
 from vedacore.misc import registry
-from vedacore.parallel import master_only
 from .base_hook import BaseHook
 
 
@@ -18,10 +17,10 @@ class LoggerHook(BaseHook):
             if isinstance(log_dict['lr'], dict):
                 lr_str = []
                 for k, val in log_dict['lr'].items():
-                    lr_str.append(f'lr_{k}: {val:.3e}')
+                    lr_str.append(f'lr_{k}: {val:.4}')
                 lr_str = ' '.join(lr_str)
             else:
-                lr_str = f'lr: {log_dict["lr"]:.3e}'
+                lr_str = f'lr: {log_dict["lr"]:.4}'
 
             # by epoch: Epoch [4][100/1000]
             # by iter:  Iter [100/100000]
@@ -41,7 +40,6 @@ class LoggerHook(BaseHook):
 
         looper.logger.info(log_str)
 
-    @master_only
     def after_train_iter(self, looper):
         log_dict = OrderedDict()
         cur_lr = looper.current_lr()

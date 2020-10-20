@@ -2,23 +2,16 @@ import torch
 
 from vedadet.datasets import build_dataset, build_dataloader
 from vedadet.engines import build_engine
-from vedacore.parallel import init_dist
 from vedacore.hooks import HookPool
 from vedacore.loopers import EpochBasedLooper
 from vedacore.parallel import MMDistributedDataParallel
 from vedacore.parallel import MMDataParallel
 
 
-def trainval(cfg, launcher, logger):
+def trainval(cfg, distributed, logger):
 
     for mode in cfg.modes:
         assert mode in ('train', 'val')
-
-    if launcher == 'none':
-        distributed = False
-    else:
-        distributed = True
-        init_dist(launcher, **cfg.dist_params)
 
     dataloaders = dict()
     engines = dict()
