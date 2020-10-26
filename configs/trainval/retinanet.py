@@ -167,7 +167,8 @@ hooks = [
             interval=-1),
         dict(
             typename='LoggerHook',
-            interval=1),
+            interval=dict(train=10,
+                val=20)),
         ]
 
 # 5. work modes

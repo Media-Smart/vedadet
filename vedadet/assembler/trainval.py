@@ -38,7 +38,7 @@ def trainval(cfg, distributed, logger):
         engines['train'] = engine
 
     if 'val' in cfg.modes:
-        dataset = build_dataset(cfg.data.val)
+        dataset = build_dataset(cfg.data.val, dict(test_mode=True))
 
         dataloaders['val'] = build_dataloader(
             dataset,
@@ -59,14 +59,20 @@ def trainval(cfg, distributed, logger):
                                     device_ids=[torch.cuda.current_device()])
         engines['val'] = engine
 
-    hook_pool = HookPool(cfg.hooks)
+    hook_pool = HookPool(cfg.hooks, cfg.modes, logger)
 
     looper = EpochBasedLooper(cfg.modes, dataloaders, engines, hook_pool,
                               logger, cfg.workdir)
     if 'weights' in cfg:
         looper.load_weights(**cfg.weights)
-    if 'optimizer' in cfg:
-        looper.load_optimizer(**cfg.optimizer)
-    if 'meta' in cfg:
-        looper.load_meta(**cfg.meta)
+    if 'train' in cfg.modes:
+        if 'optimizer' in cfg:
+            looper.load_optimizer(**cfg.optimizer)
+        if 'meta' in cfg:
+            looper.load_meta(**cfg.meta)
+    else:
+        if 'optimizer' in cfg:
+            logger.warning('optimizer is not needed in train mode')
+        if 'meta' in cfg:
+            logger.warning('meta is not needed in train mode')
     looper.start(cfg.max_epochs)

@@ -88,3 +88,7 @@ class EvalHook(BaseHook):
                 if 'copypaste' in k:
                     logger.info(f'{k}: {v}')
         looper.his_val_results = None
+
+    @property
+    def modes(self):
+        return ['val']

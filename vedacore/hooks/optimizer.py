@@ -24,3 +24,7 @@ class OptimizerHook(BaseHook):
             detector = looper.train_engine.detector
             grad_norm = self.clip_grads(detector.parameters())
         optimizer.step()
+
+    @property
+    def modes(self):
+        return ['train']

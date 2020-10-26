@@ -16,7 +16,7 @@ class EpochBasedLooper(BaseLooper):
             self.cur_results[mode] = engine(data)
             if mode == BaseLooper.TRAIN:
                 self._iter += 1
-                self._inner_iter = idx + 1
+            self._inner_iter = idx + 1
             self.hook_pool.fire(f'after_{mode}_iter', self)
 
     def start(self, max_epochs):

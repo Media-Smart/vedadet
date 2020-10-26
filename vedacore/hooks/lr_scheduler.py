@@ -140,6 +140,10 @@ class LrSchedulerHook(BaseHook):
                 warmup_lr = self.get_warmup_lr(cur_iter)
                 self._set_lr(looper, warmup_lr)
 
+    @property
+    def modes(self):
+        return ['train']
+
 
 @registry.register_module('hook')
 class FixedLrSchedulerHook(LrSchedulerHook):

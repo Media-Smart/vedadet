@@ -1,4 +1,7 @@
-class BaseHook:
+from abc import abstractmethod, ABCMeta
+
+
+class BaseHook(metaclass=ABCMeta):
     def before_run(self, looper):
         pass
 
@@ -52,3 +55,8 @@ class BaseHook:
 
     def end_of_epoch(self, looper):
         return looper.inner_iter + 1 == len(looper.data_loader)
+
+    @property
+    @abstractmethod
+    def modes(self):
+        pass

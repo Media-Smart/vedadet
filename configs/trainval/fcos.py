@@ -44,7 +44,6 @@ data = dict(
                     dict(typename='Collect', keys=['img']),
                 ])
         ],
-        test_mode=True,
     ),
 )
 
@@ -150,13 +149,14 @@ hooks = [
             warmup_iters=500,
             warmup_ratio=1.0 / 10
             ),
-        dict(typename='EvalHook'),
         dict(
             typename='SnapshotHook',
             interval=1),
         dict(
             typename='LoggerHook',
-            interval=1),
+            interval=dict(train=10,
+                val=20)),
+        dict(typename='EvalHook'),
         ]
 
 # 5. work modes

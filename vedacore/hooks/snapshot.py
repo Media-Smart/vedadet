@@ -88,3 +88,7 @@ class SnapshotHook(BaseHook):
                     os.remove(ckpt_path)
                 else:
                     break
+
+    @property
+    def modes(self):
+        return ['train']
