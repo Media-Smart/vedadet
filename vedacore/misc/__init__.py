@@ -10,3 +10,4 @@ from .config import Config
 from .checkpoint import load_weights, load_optimizer, load_meta
 from .checkpoint import save_weights, save_optimizer, save_meta
 from .decorator import singleton_arg
+from .color import color_val

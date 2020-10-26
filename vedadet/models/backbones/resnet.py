@@ -586,9 +586,9 @@ class ResNet(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Defaults to None.
         """
-        print('set random seed for backbone')
-        from vedacore.misc import set_random_seed
-        set_random_seed(0, True)
+        #print('set random seed for backbone')
+        #from vedacore.misc import set_random_seed
+        #set_random_seed(0, True)
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 kaiming_init(m)
