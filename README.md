@@ -76,7 +76,7 @@ Modify some configuration accordingly in the config file like `configs/trainval/
 
 b. Multi-GPUs training
 ```shell
-tools/dist_train.sh configs/trainval/retinanet.py "0,1"
+tools/dist_trainval.sh configs/trainval/retinanet.py "0,1"
 ```
 
 c. Single GPU training
