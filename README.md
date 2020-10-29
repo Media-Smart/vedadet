@@ -76,7 +76,7 @@ Modify some configuration accordingly in the config file like `configs/trainval/
 
 b. Multi-GPUs training
 ```shell
-tools/dist_trainval.sh configs/trainval/retinanet.py "0,1"
+tools/dist_train.sh configs/trainval/retinanet.py "0,1"
 ```
 
 c. Single GPU training
@@ -99,18 +99,22 @@ Snapshots and logs will be generated at `${vedadet_root}/workdir`.
 ## Inference
 
 a. Config
+
 Modify some configuration accordingly in the config file like `configs/trainval/retinanet.py`
 
 b. Inference
+
 ```shell
 python tools/test.py configs/infer/retinanet.py
 ```
 
 ## Deploy
 a. Convert to TensorRT engine
+
 To be done.
 
 b. Inference SDK
+
 To be done.
 
 ## Contact
