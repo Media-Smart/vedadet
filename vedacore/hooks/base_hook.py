@@ -1,7 +1,8 @@
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 
 
 class BaseHook(metaclass=ABCMeta):
+
     def before_run(self, looper):
         pass
 

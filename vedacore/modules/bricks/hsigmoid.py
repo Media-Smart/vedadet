@@ -11,6 +11,7 @@ class HSigmoid(nn.Module):
     Returns:
         Tensor: The output tensor.
     """
+
     def __init__(self):
         super(HSigmoid, self).__init__()
 

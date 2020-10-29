@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 
 class BaseFileHandler(metaclass=ABCMeta):
+
     @abstractmethod
     def load_from_fileobj(self, file, **kwargs):
         pass

@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import numpy as np
 import torch
 
@@ -29,6 +30,7 @@ class LegacyDeltaXYWHBBoxCoder(BaseBBoxCoder):
         target_stds (Sequence[float]): denormalizing standard deviation of
             target for delta coordinates
     """
+
     def __init__(self,
                  target_means=(0., 0., 0., 0.),
                  target_stds=(1., 1., 1., 1.)):

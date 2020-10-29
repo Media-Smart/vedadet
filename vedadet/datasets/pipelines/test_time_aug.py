@@ -1,9 +1,8 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import warnings
 
-from vedacore.misc import is_list_of
-
-from vedacore.misc import registry
+from vedacore.misc import is_list_of, registry
 from .compose import Compose
 
 
@@ -49,6 +48,7 @@ class MultiScaleFlipAug(object):
             multiple flip augmentations will be applied.
             It has no effect when flip == False. Default: "horizontal".
     """
+
     def __init__(self,
                  transforms,
                  img_scale=None,

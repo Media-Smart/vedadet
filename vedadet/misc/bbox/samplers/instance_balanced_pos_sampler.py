@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import numpy as np
 import torch
 
@@ -10,6 +11,7 @@ from .random_sampler import RandomSampler
 class InstanceBalancedPosSampler(RandomSampler):
     """Instance balanced sampler that samples equal number of positive samples
     for each instance."""
+
     def _sample_pos(self, assign_result, num_expected, **kwargs):
         """Sample positive boxes.
 
@@ -31,8 +33,8 @@ class InstanceBalancedPosSampler(RandomSampler):
             num_per_gt = int(round(num_expected / float(num_gts)) + 1)
             sampled_inds = []
             for i in unique_gt_inds:
-                inds = torch.nonzero(assign_result.gt_inds == i.item(),
-                                     as_tuple=False)
+                inds = torch.nonzero(
+                    assign_result.gt_inds == i.item(), as_tuple=False)
                 if inds.numel() != 0:
                     inds = inds.squeeze(1)
                 else:

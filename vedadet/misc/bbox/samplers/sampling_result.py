@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from ..util_mixins import NiceRepr
@@ -22,6 +23,7 @@ class SamplingResult(NiceRepr):
             'pos_is_gt': tensor([], dtype=torch.uint8)
         })>
     """
+
     def __init__(self, pos_inds, neg_inds, bboxes, gt_bboxes, assign_result,
                  gt_flags):
         self.pos_inds = pos_inds
@@ -111,9 +113,9 @@ class SamplingResult(NiceRepr):
             >>> self = SamplingResult.random()
             >>> print(self.__dict__)
         """
-        from .random_sampler import RandomSampler
-        from ..assigners.assign_result import AssignResult
         from .. import demodata
+        from ..assigners.assign_result import AssignResult
+        from .random_sampler import RandomSampler
         rng = demodata.ensure_rng(rng)
 
         # make probabalistic?
@@ -142,10 +144,11 @@ class SamplingResult(NiceRepr):
         else:
             add_gt_as_proposals = True  # make probabalistic?
 
-        sampler = RandomSampler(num,
-                                pos_fraction,
-                                neg_pos_ub=neg_pos_ub,
-                                add_gt_as_proposals=add_gt_as_proposals,
-                                rng=rng)
+        sampler = RandomSampler(
+            num,
+            pos_fraction,
+            neg_pos_ub=neg_pos_ub,
+            add_gt_as_proposals=add_gt_as_proposals,
+            rng=rng)
         self = sampler.sample(assign_result, bboxes, gt_bboxes, gt_labels)
         return self

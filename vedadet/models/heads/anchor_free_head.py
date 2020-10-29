@@ -1,12 +1,9 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-from abc import abstractmethod
-
-import torch
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch.nn as nn
-from vedacore.modules import ConvModule, bias_init_with_prob, normal_init
-from vedacore.misc import registry
 
-from vedacore.misc import multi_apply
+from vedacore.misc import multi_apply, registry
+from vedacore.modules import ConvModule, bias_init_with_prob, normal_init
 from .base_dense_head import BaseDenseHead
 
 
@@ -61,8 +58,8 @@ class AnchorFreeHead(BaseDenseHead):
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
         self.fp16_enabled = False
-        self.background_label = (num_classes if background_label is None else
-                                 background_label)
+        self.background_label = (
+            num_classes if background_label is None else background_label)
         # background_label should be either 0 or num_classes
         assert (self.background_label == 0
                 or self.background_label == num_classes)
@@ -85,14 +82,15 @@ class AnchorFreeHead(BaseDenseHead):
             else:
                 conv_cfg = self.conv_cfg
             self.cls_convs.append(
-                ConvModule(chn,
-                           self.feat_channels,
-                           3,
-                           stride=1,
-                           padding=1,
-                           conv_cfg=conv_cfg,
-                           norm_cfg=self.norm_cfg,
-                           bias=self.conv_bias))
+                ConvModule(
+                    chn,
+                    self.feat_channels,
+                    3,
+                    stride=1,
+                    padding=1,
+                    conv_cfg=conv_cfg,
+                    norm_cfg=self.norm_cfg,
+                    bias=self.conv_bias))
 
     def _init_reg_convs(self):
         """Initialize bbox regression conv layers of the head."""
@@ -104,21 +102,20 @@ class AnchorFreeHead(BaseDenseHead):
             else:
                 conv_cfg = self.conv_cfg
             self.reg_convs.append(
-                ConvModule(chn,
-                           self.feat_channels,
-                           3,
-                           stride=1,
-                           padding=1,
-                           conv_cfg=conv_cfg,
-                           norm_cfg=self.norm_cfg,
-                           bias=self.conv_bias))
+                ConvModule(
+                    chn,
+                    self.feat_channels,
+                    3,
+                    stride=1,
+                    padding=1,
+                    conv_cfg=conv_cfg,
+                    norm_cfg=self.norm_cfg,
+                    bias=self.conv_bias))
 
     def _init_predictor(self):
         """Initialize predictor layers of the head."""
-        self.conv_cls = nn.Conv2d(self.feat_channels,
-                                  self.cls_out_channels,
-                                  3,
-                                  padding=1)
+        self.conv_cls = nn.Conv2d(
+            self.feat_channels, self.cls_out_channels, 3, padding=1)
         self.conv_reg = nn.Conv2d(self.feat_channels, 4, 3, padding=1)
 
     def init_weights(self):

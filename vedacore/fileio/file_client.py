@@ -10,6 +10,7 @@ class BaseStorageBackend(metaclass=ABCMeta):
     `get()` reads the file as a byte stream and `get_text()` reads the file
     as texts.
     """
+
     @abstractmethod
     def get(self, filepath):
         pass
@@ -27,6 +28,7 @@ class CephBackend(BaseStorageBackend):
             path. When `path_mapping={'src': 'dst'}`, `src` in `filepath` will
             be replaced by `dst`. Default: None.
     """
+
     def __init__(self, path_mapping=None):
         try:
             import ceph
@@ -60,6 +62,7 @@ class PetrelBackend(BaseStorageBackend):
             be replaced by `dst`. Default: None.
         enable_mc (bool): whether to enable memcached support. Default: True.
     """
+
     def __init__(self, path_mapping=None, enable_mc=True):
         try:
             from petrel_client import client
@@ -93,6 +96,7 @@ class MemcachedBackend(BaseStorageBackend):
         sys_path (str | None): Additional path to be appended to `sys.path`.
             Default: None.
     """
+
     def __init__(self, server_list_cfg, client_cfg, sys_path=None):
         if sys_path is not None:
             import sys
@@ -138,6 +142,7 @@ class LmdbBackend(BaseStorageBackend):
     Attributes:
         db_path (str): Lmdb database path.
     """
+
     def __init__(self,
                  db_path,
                  readonly=True,
@@ -150,11 +155,12 @@ class LmdbBackend(BaseStorageBackend):
             raise ImportError('Please install lmdb to enable LmdbBackend.')
 
         self.db_path = str(db_path)
-        self._client = lmdb.open(self.db_path,
-                                 readonly=readonly,
-                                 lock=lock,
-                                 readahead=readahead,
-                                 **kwargs)
+        self._client = lmdb.open(
+            self.db_path,
+            readonly=readonly,
+            lock=lock,
+            readahead=readahead,
+            **kwargs)
 
     def get(self, filepath):
         """Get values according to the filepath.
@@ -173,6 +179,7 @@ class LmdbBackend(BaseStorageBackend):
 
 class HardDiskBackend(BaseStorageBackend):
     """Raw hard disks storage backend."""
+
     def get(self, filepath):
         filepath = str(filepath)
         with open(filepath, 'rb') as f:

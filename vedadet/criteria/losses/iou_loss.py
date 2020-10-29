@@ -1,11 +1,11 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import math
-
 import torch
 import torch.nn as nn
 
-from vedadet.misc.bbox import bbox_overlaps
 from vedacore.misc import registry
+from vedadet.misc.bbox import bbox_overlaps
 from .utils import weighted_loss
 
 
@@ -228,6 +228,7 @@ class IoULoss(nn.Module):
         reduction (str): Options are "none", "mean" and "sum".
         loss_weight (float): Weight of loss.
     """
+
     def __init__(self, eps=1e-6, reduction='mean', loss_weight=1.0):
         super(IoULoss, self).__init__()
         self.eps = eps
@@ -254,8 +255,8 @@ class IoULoss(nn.Module):
                 Defaults to None. Options are "none", "mean" and "sum".
         """
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (reduction_override
-                     if reduction_override else self.reduction)
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
         if (weight is not None) and (not torch.any(weight > 0)) and (
                 reduction != 'none'):
             return (pred * weight).sum()  # 0
@@ -265,18 +266,20 @@ class IoULoss(nn.Module):
             # iou_loss of shape (n,)
             assert weight.shape == pred.shape
             weight = weight.mean(-1)
-        loss = self.loss_weight * iou_loss(pred,
-                                           target,
-                                           weight,
-                                           eps=self.eps,
-                                           reduction=reduction,
-                                           avg_factor=avg_factor,
-                                           **kwargs)
+        loss = self.loss_weight * iou_loss(
+            pred,
+            target,
+            weight,
+            eps=self.eps,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
         return loss
 
 
 @registry.register_module('loss')
 class BoundedIoULoss(nn.Module):
+
     def __init__(self, beta=0.2, eps=1e-3, reduction='mean', loss_weight=1.0):
         super(BoundedIoULoss, self).__init__()
         self.beta = beta
@@ -294,21 +297,23 @@ class BoundedIoULoss(nn.Module):
         if weight is not None and not torch.any(weight > 0):
             return (pred * weight).sum()  # 0
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (reduction_override
-                     if reduction_override else self.reduction)
-        loss = self.loss_weight * bounded_iou_loss(pred,
-                                                   target,
-                                                   weight,
-                                                   beta=self.beta,
-                                                   eps=self.eps,
-                                                   reduction=reduction,
-                                                   avg_factor=avg_factor,
-                                                   **kwargs)
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
+        loss = self.loss_weight * bounded_iou_loss(
+            pred,
+            target,
+            weight,
+            beta=self.beta,
+            eps=self.eps,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
         return loss
 
 
 @registry.register_module('loss')
 class GIoULoss(nn.Module):
+
     def __init__(self, eps=1e-6, reduction='mean', loss_weight=1.0):
         super(GIoULoss, self).__init__()
         self.eps = eps
@@ -325,26 +330,28 @@ class GIoULoss(nn.Module):
         if weight is not None and not torch.any(weight > 0):
             return (pred * weight).sum()  # 0
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (reduction_override
-                     if reduction_override else self.reduction)
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
         if weight is not None and weight.dim() > 1:
             # TODO: remove this in the future
             # reduce the weight of shape (n, 4) to (n,) to match the
             # giou_loss of shape (n,)
             assert weight.shape == pred.shape
             weight = weight.mean(-1)
-        loss = self.loss_weight * giou_loss(pred,
-                                            target,
-                                            weight,
-                                            eps=self.eps,
-                                            reduction=reduction,
-                                            avg_factor=avg_factor,
-                                            **kwargs)
+        loss = self.loss_weight * giou_loss(
+            pred,
+            target,
+            weight,
+            eps=self.eps,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
         return loss
 
 
 @registry.register_module('loss')
 class DIoULoss(nn.Module):
+
     def __init__(self, eps=1e-6, reduction='mean', loss_weight=1.0):
         super(DIoULoss, self).__init__()
         self.eps = eps
@@ -361,26 +368,28 @@ class DIoULoss(nn.Module):
         if weight is not None and not torch.any(weight > 0):
             return (pred * weight).sum()  # 0
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (reduction_override
-                     if reduction_override else self.reduction)
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
         if weight is not None and weight.dim() > 1:
             # TODO: remove this in the future
             # reduce the weight of shape (n, 4) to (n,) to match the
             # giou_loss of shape (n,)
             assert weight.shape == pred.shape
             weight = weight.mean(-1)
-        loss = self.loss_weight * diou_loss(pred,
-                                            target,
-                                            weight,
-                                            eps=self.eps,
-                                            reduction=reduction,
-                                            avg_factor=avg_factor,
-                                            **kwargs)
+        loss = self.loss_weight * diou_loss(
+            pred,
+            target,
+            weight,
+            eps=self.eps,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
         return loss
 
 
 @registry.register_module('loss')
 class CIoULoss(nn.Module):
+
     def __init__(self, eps=1e-6, reduction='mean', loss_weight=1.0):
         super(CIoULoss, self).__init__()
         self.eps = eps
@@ -397,19 +406,20 @@ class CIoULoss(nn.Module):
         if weight is not None and not torch.any(weight > 0):
             return (pred * weight).sum()  # 0
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (reduction_override
-                     if reduction_override else self.reduction)
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
         if weight is not None and weight.dim() > 1:
             # TODO: remove this in the future
             # reduce the weight of shape (n, 4) to (n,) to match the
             # giou_loss of shape (n,)
             assert weight.shape == pred.shape
             weight = weight.mean(-1)
-        loss = self.loss_weight * ciou_loss(pred,
-                                            target,
-                                            weight,
-                                            eps=self.eps,
-                                            reduction=reduction,
-                                            avg_factor=avg_factor,
-                                            **kwargs)
+        loss = self.loss_weight * ciou_loss(
+            pred,
+            target,
+            weight,
+            eps=self.eps,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
         return loss

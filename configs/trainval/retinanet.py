@@ -20,16 +20,17 @@ data = dict(
             dict(typename='Normalize', **img_norm_cfg),
             dict(typename='Pad', size_divisor=size_divisor),
             dict(typename='DefaultFormatBundle'),
-            dict(typename='Collect', keys=['img', 'gt_bboxes',
-                'gt_labels']),
-       ]),
+            dict(
+                typename='Collect',
+                keys=['img', 'gt_bboxes', 'gt_labels'])]),
     val=dict(
         typename=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
         img_prefix=data_root + 'val2017/',
         pipeline=[
             dict(typename='LoadImageFromFile'),
-            dict(typename='MultiScaleFlipAug',
+            dict(
+                typename='MultiScaleFlipAug',
                 img_scale=(1333, 800),
                 flip=False,
                 transforms=[
@@ -41,7 +42,6 @@ data = dict(
                     dict(typename='Collect', keys=['img']),
                 ])
         ],
-        test_mode=True, # IMPORTANT
     ),
 )
 
@@ -60,12 +60,12 @@ detector = dict(
         depth=50,
         num_stages=4,
         out_indices=(0, 1, 2, 3),
-        frozen_stages=1, # TODO
+        frozen_stages=1,  # TODO
         norm_cfg=dict(
             typename='BN',
-            requires_grad=True), # TODO
+            requires_grad=True),  # TODO
         norm_eval=True,
-        style='pytorch'), # TODO
+        style='pytorch'),  # TODO
     neck=dict(
         typename='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -113,7 +113,7 @@ train_engine = dict(
             alpha=0.25,
             loss_weight=1.0),
         loss_bbox=dict(
-            typename='L1Loss', 
+            typename='L1Loss',
             loss_weight=1.0),
         train_cfg=dict(
             assigner=dict(
@@ -139,12 +139,12 @@ val_engine = dict(
     converter=dict(
         typename='BBoxAnchorConverter',
         num_classes=num_classes,
-        test_cfg = dict(
+        test_cfg=dict(
             nms_pre=1000,
             min_bbox_size=0,
             score_thr=0.05,
             nms=dict(
-                typename='nms', 
+                typename='nms',
                 iou_thr=0.5),
             max_per_img=100),
         bbox_coder=bbox_coder,
@@ -157,9 +157,9 @@ hooks = [
         dict(
             typename='StepLrSchedulerHook',
             step=[20, 40],
-            #warmup='linear',
-            #warmup_iters=1000,
-            #warmup_ratio=0.001
+            # warmup='linear',
+            # warmup_iters=1000,
+            # warmup_ratio=0.001
             ),
         dict(typename='EvalHook'),
         dict(
@@ -167,20 +167,18 @@ hooks = [
             interval=-1),
         dict(
             typename='LoggerHook',
-            interval=dict(train=10,
-                val=20)),
-        ]
+            interval=1)]
 
 # 5. work modes
 modes = ['train', 'val']
 max_epochs = 90000
 
 # 6. checkpoint
-#weights = dict(filepath='workdir/retinanet_mini/epoch_3_weights.pth')
+# weights = dict(filepath='workdir/retinanet_mini/epoch_3_weights.pth')
 weights = dict(filepath='/media/data/home/yichaoxiong/packages/weights/resnet50-19c8e357.pth',
-        prefix='backbone')
-#optimizer = dict(filepath='workdir/retinanet_mini/epoch_3_optim.pth')
-#meta = dict(filepath='workdir/retinanet_mini/epoch_3_meta.pth')
+               prefix='backbone')
+# optimizer = dict(filepath='workdir/retinanet_mini/epoch_3_optim.pth')
+# meta = dict(filepath='workdir/retinanet_mini/epoch_3_meta.pth')
 
 # 7. misc
 seed = 0

@@ -3,9 +3,10 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 size_divisor = 32
 
-data_pipeline=[
+data_pipeline = [
     dict(typename='LoadImageFromFile'),
-    dict(typename='MultiScaleFlipAug',
+    dict(
+        typename='MultiScaleFlipAug',
         img_scale=(1333, 800),
         flip=False,
         transforms=[
@@ -33,12 +34,12 @@ detector = dict(
         depth=50,
         num_stages=4,
         out_indices=(0, 1, 2, 3),
-        frozen_stages=1, # TODO
+        frozen_stages=1,  # TODO
         norm_cfg=dict(
             typename='BN',
-            requires_grad=True), # TODO
+            requires_grad=True),  # TODO
         norm_eval=True,
-        style='pytorch'), # TODO
+        style='pytorch'),  # TODO
     neck=dict(
         typename='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -79,32 +80,32 @@ infer_engine = dict(
     converter=dict(
         typename='BBoxAnchorConverter',
         num_classes=num_classes,
-        test_cfg = dict(
+        test_cfg=dict(
             nms_pre=1000,
             min_bbox_size=0,
             score_thr=0.6,
             nms=dict(
-                typename='nms', 
+                typename='nms',
                 iou_thr=0.5),
             max_per_img=100),
         bbox_coder=bbox_coder,
         rescale=True))
 
-# 4. weights 
-#weights = dict(filepath='workdir/retinanet_mini/epoch_3_weights.pth')
+# 4. weights
+weights = dict(filepath='workdir/retinanet/epoch_12_weights.pth')
 
 # 5. show
 class_names = ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
-           'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
-           'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
-           'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe',
-           'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
-           'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat',
-           'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-           'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-           'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot',
-           'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
-           'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
-           'mouse', 'remote', 'keyboard', 'cell phone', 'microwave',
-           'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock',
-           'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush')
+               'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
+               'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
+               'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe',
+               'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
+               'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat',
+               'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+               'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
+               'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot',
+               'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
+               'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
+               'mouse', 'remote', 'keyboard', 'cell phone', 'microwave',
+               'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock',
+               'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush')

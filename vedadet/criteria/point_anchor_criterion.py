@@ -1,11 +1,10 @@
 import torch
 
 from vedacore.misc import multi_apply, registry
-
-from vedadet.misc.bbox import distance2bbox
 from vedadet.bridge import build_meshgrid
-from .losses import build_loss
+from vedadet.misc.bbox import distance2bbox
 from .base_criterion import BaseCriterion
+from .losses import build_loss
 
 
 @registry.register_module('criterion')
@@ -39,15 +38,17 @@ class PointAnchorCriterion(BaseCriterion):
                  regress_ranges,
                  center_sampling=False,
                  center_sample_radius=1.5,
-                 loss_cls=dict(typename='FocalLoss',
-                               use_sigmoid=True,
-                               gamma=2.0,
-                               alpha=0.25,
-                               loss_weight=1.0),
+                 loss_cls=dict(
+                     typename='FocalLoss',
+                     use_sigmoid=True,
+                     gamma=2.0,
+                     alpha=0.25,
+                     loss_weight=1.0),
                  loss_bbox=dict(typename='IoULoss', loss_weight=1.0),
-                 loss_centerness=dict(typename='CrossEntropyLoss',
-                                      use_sigmoid=True,
-                                      loss_weight=1.0)):
+                 loss_centerness=dict(
+                     typename='CrossEntropyLoss',
+                     use_sigmoid=True,
+                     loss_weight=1.0)):
         super().__init__()
         self.num_classes = num_classes
         self.meshgrid = build_meshgrid(meshgrid)
@@ -75,7 +76,6 @@ class PointAnchorCriterion(BaseCriterion):
         Adapted from https://github.com/open-mmlab/mmdetection
         """
         cls_scores = feats[0]
-        bbox_preds = feats[1]
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
         device = cls_scores[0].device
         dtype = cls_scores[0].dtype
@@ -124,10 +124,9 @@ class PointAnchorCriterion(BaseCriterion):
                     & (flatten_labels < bg_class_ind)).nonzero(
                         as_tuple=False).reshape(-1)
         num_pos = len(pos_inds)
-        loss_cls = self.loss_cls(flatten_cls_scores,
-                                 flatten_labels,
-                                 avg_factor=num_pos +
-                                 num_imgs)  # avoid num_pos is 0
+        loss_cls = self.loss_cls(
+            flatten_cls_scores, flatten_labels,
+            avg_factor=num_pos + num_imgs)  # avoid num_pos is 0
 
         pos_bbox_preds = flatten_bbox_preds[pos_inds]
         pos_centerness = flatten_centerness[pos_inds]
@@ -139,26 +138,28 @@ class PointAnchorCriterion(BaseCriterion):
             pos_decoded_bbox_preds = distance2bbox(pos_points, pos_bbox_preds)
             pos_decoded_target_preds = distance2bbox(pos_points,
                                                      pos_bbox_targets)
-            loss_bbox = self.loss_bbox(pos_decoded_bbox_preds,
-                                       pos_decoded_target_preds,
-                                       weight=pos_centerness_targets,
-                                       avg_factor=pos_centerness_targets.sum())
+            loss_bbox = self.loss_bbox(
+                pos_decoded_bbox_preds,
+                pos_decoded_target_preds,
+                weight=pos_centerness_targets,
+                avg_factor=pos_centerness_targets.sum())
             loss_centerness = self.loss_centerness(pos_centerness,
                                                    pos_centerness_targets)
         else:
             loss_bbox = pos_bbox_preds.sum()
             loss_centerness = pos_centerness.sum()
 
-        return dict(loss_bbox=loss_bbox,
-                    loss_cls=loss_cls,
-                    loss_centerness=loss_centerness)
+        return dict(
+            loss_bbox=loss_bbox,
+            loss_cls=loss_cls,
+            loss_centerness=loss_centerness)
 
     def get_targets(self, points, gt_labels_list, gt_bboxes_list):
         """Compute regression, classification and centerss targets for points
-        in multiple images. 
-        
+        in multiple images.
+
         Adapted from https://github.com/open-mmlab/mmdetection
-        
+
         Args:
             points (list[Tensor]): Points of each fpn level, each has shape
                 (num_points, 2).
@@ -210,15 +211,15 @@ class PointAnchorCriterion(BaseCriterion):
                 torch.cat([labels[i] for labels in labels_list]))
             bbox_targets = torch.cat(
                 [bbox_targets[i] for bbox_targets in bbox_targets_list])
-            #if self.norm_on_bbox:
-            #    bbox_targets = bbox_targets / self.strides[i]
+            # if self.norm_on_bbox:
+            #     bbox_targets = bbox_targets / self.strides[i]
             concat_lvl_bbox_targets.append(bbox_targets)
         return concat_lvl_labels, concat_lvl_bbox_targets
 
     def _get_target_single(self, gt_bboxes, gt_labels, points, regress_ranges,
                            num_points_per_lvl):
         """Compute regression and classification targets for a single image.
-        
+
         Adapted from https://github.com/open-mmlab/mmdetection
         """
         # TODO: adapt to the API in Bridge class
@@ -228,8 +229,8 @@ class PointAnchorCriterion(BaseCriterion):
             return gt_labels.new_full((num_points,), self.background_label), \
                    gt_bboxes.new_zeros((num_points, 4))
 
-        areas = (gt_bboxes[:, 2] - gt_bboxes[:, 0]) * (gt_bboxes[:, 3] -
-                                                       gt_bboxes[:, 1])
+        areas = (gt_bboxes[:, 2] - gt_bboxes[:, 0]) * (
+            gt_bboxes[:, 3] - gt_bboxes[:, 1])
         # TODO: figure out why these two are different
         # areas = areas[None].expand(num_points, num_gts)
         areas = areas[None].repeat(num_points, 1)
@@ -318,7 +319,7 @@ class PointAnchorCriterion(BaseCriterion):
         # only calculate pos centerness targets, otherwise there may be nan
         left_right = pos_bbox_targets[:, [0, 2]]
         top_bottom = pos_bbox_targets[:, [1, 3]]
-        centerness_targets = (left_right.min(dim=-1)[0] / left_right.max(
-            dim=-1)[0]) * (top_bottom.min(dim=-1)[0] /
-                           top_bottom.max(dim=-1)[0])
+        centerness_targets = (
+            left_right.min(dim=-1)[0] / left_right.max(dim=-1)[0]) * (
+                top_bottom.min(dim=-1)[0] / top_bottom.max(dim=-1)[0])
         return torch.sqrt(centerness_targets)

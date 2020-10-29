@@ -1,28 +1,23 @@
-import shutil
 import argparse
-import copy
-import os
 import os.path as osp
+import shutil
 import time
-import warnings
 
-import torch
-
-from vedacore.misc import mkdir_or_exist, Config
-from vedacore.misc import set_random_seed
+from vedacore.misc import Config, mkdir_or_exist, set_random_seed
 from vedacore.parallel import init_dist
-from vedadet.misc import get_root_logger
 from vedadet.assembler import trainval
+from vedadet.misc import get_root_logger
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     parser.add_argument('config', help='train config file path')
     parser.add_argument('--workdir', help='the dir to save logs and models')
-    parser.add_argument('--launcher',
-                        choices=['none', 'pytorch'],
-                        default='none',
-                        help='job launcher')
+    parser.add_argument(
+        '--launcher',
+        choices=['none', 'pytorch'],
+        default='none',
+        help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)  # TODO
 
     args = parser.parse_args()
@@ -55,15 +50,13 @@ def main():
 
     # create work_dir
     mkdir_or_exist(osp.abspath(cfg.workdir))
-    # dump config
-    #cfg.dump(osp.join(cfg.workdir, osp.basename(args.config)))
     shutil.copy(args.config, cfg.workdir)
     # init the logger before other steps
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     log_file = osp.join(cfg.workdir, f'{timestamp}.log')
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
-    #print('local_rank', args.local_rank)
+    # print('local_rank', args.local_rank)
 
     trainval(cfg, distributed, logger)
 

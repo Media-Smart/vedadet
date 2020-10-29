@@ -1,6 +1,5 @@
-import warnings
-
 import torch.nn as nn
+import warnings
 
 from ..utils import constant_init, kaiming_init
 from .activation import build_activation_layer
@@ -53,6 +52,7 @@ class ConvModule(nn.Module):
             ("conv", "norm", "act") and ("act", "conv", "norm").
             Default: ('conv', 'norm', 'act').
     """
+
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -101,15 +101,16 @@ class ConvModule(nn.Module):
         # reset padding to 0 for conv module
         conv_padding = 0 if self.with_explicit_padding else padding
         # build convolution layer
-        self.conv = build_conv_layer(conv_cfg,
-                                     in_channels,
-                                     out_channels,
-                                     kernel_size,
-                                     stride=stride,
-                                     padding=conv_padding,
-                                     dilation=dilation,
-                                     groups=groups,
-                                     bias=bias)
+        self.conv = build_conv_layer(
+            conv_cfg,
+            in_channels,
+            out_channels,
+            kernel_size,
+            stride=stride,
+            padding=conv_padding,
+            dilation=dilation,
+            groups=groups,
+            bias=bias)
         # export the attributes of self.conv to a higher level for convenience
         self.in_channels = self.conv.in_channels
         self.out_channels = self.conv.out_channels
@@ -159,7 +160,8 @@ class ConvModule(nn.Module):
         # 3. For PyTorch's conv layers, they will be initialized anyway by
         #    their own `reset_parameters` methods.
         if not hasattr(self.conv, 'init_weights'):
-            if self.with_activation and self.act_cfg['typename'] == 'LeakyReLU':
+            if self.with_activation and \
+                    self.act_cfg['typename'] == 'LeakyReLU':
                 nonlinearity = 'leaky_relu'
                 a = self.act_cfg.get('negative_slope', 0.01)
             else:

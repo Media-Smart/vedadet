@@ -1,8 +1,9 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
-from vedadet.ops import nms_match
 from vedacore.misc import registry
+from vedadet.ops import nms_match
 from ..bbox import bbox2roi
 from .base_sampler import BaseSampler
 from .sampling_result import SamplingResult
@@ -29,6 +30,7 @@ class ScoreHLRSampler(BaseSampler):
         score_thr (float): Minimum score that a negative sample is to be
             considered as valid bbox.
     """
+
     def __init__(self,
                  num,
                  pos_fraction,
@@ -77,9 +79,8 @@ class ScoreHLRSampler(BaseSampler):
 
         is_tensor = isinstance(gallery, torch.Tensor)
         if not is_tensor:
-            gallery = torch.tensor(gallery,
-                                   dtype=torch.long,
-                                   device=torch.cuda.current_device())
+            gallery = torch.tensor(
+                gallery, dtype=torch.long, device=torch.cuda.current_device())
         perm = torch.randperm(gallery.numel(), device=gallery.device)[:num]
         rand_inds = gallery[perm]
         if not is_tensor:
@@ -162,8 +163,8 @@ class ScoreHLRSampler(BaseSampler):
                 valid_bbox_pred = bbox_pred[valid_inds]
 
                 # valid_bbox_pred shape: [num_valid, #num_classes, 4]
-                valid_bbox_pred = valid_bbox_pred.view(valid_bbox_pred.size(0),
-                                                       -1, 4)
+                valid_bbox_pred = valid_bbox_pred.view(
+                    valid_bbox_pred.size(0), -1, 4)
                 selected_bbox_pred = valid_bbox_pred[range(num_valid),
                                                      valid_argmax_score]
                 pred_bboxes = self.bbox_head.bbox_coder.decode(
@@ -242,10 +243,8 @@ class ScoreHLRSampler(BaseSampler):
             gt_flags = torch.cat([gt_ones, gt_flags])
 
         num_expected_pos = int(self.num * self.pos_fraction)
-        pos_inds = self.pos_sampler._sample_pos(assign_result,
-                                                num_expected_pos,
-                                                bboxes=bboxes,
-                                                **kwargs)
+        pos_inds = self.pos_sampler._sample_pos(
+            assign_result, num_expected_pos, bboxes=bboxes, **kwargs)
         num_sampled_pos = pos_inds.numel()
         num_expected_neg = self.num - num_sampled_pos
         if self.neg_pos_ub >= 0:

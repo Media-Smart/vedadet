@@ -1,10 +1,10 @@
 # Copyright (c) Open-MMLab. All rights reserved.
 import functools
-
 import torch
 
 
 def assert_tensor_type(func):
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if not isinstance(args[0].data, torch.Tensor):
@@ -32,6 +32,7 @@ class DataContainer:
     - leave the objects as is and pass it to the model
     - pad_dims specifies the number of last few dimensions to do padding
     """
+
     def __init__(self,
                  data,
                  stack=False,

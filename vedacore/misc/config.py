@@ -4,11 +4,10 @@ import os.path as osp
 import shutil
 import sys
 import tempfile
+from addict import Dict
 from argparse import Action, ArgumentParser
 from collections import abc
 from importlib import import_module
-
-from addict import Dict
 from yapf.yapflib.yapf_api import FormatCode
 
 from .utils import check_file_exist
@@ -19,6 +18,7 @@ RESERVED_KEYS = ['filename', 'text', 'pretty_text']
 
 
 class ConfigDict(Dict):
+
     def __missing__(self, name):
         raise KeyError(name)
 
@@ -79,6 +79,7 @@ class Config:
         "{'item1': [1, 2], 'item2': {'a': 0}, 'item3': True, 'item4': 'test'}"
 
     """
+
     @staticmethod
     def _validate_py_syntax(filename):
         with open(filename) as f:
@@ -304,9 +305,10 @@ class Config:
         cfg_dict = self._cfg_dict.to_dict()
         text = _format_dict(cfg_dict, outest_level=True)
         # copied from setup.cfg
-        yapf_style = dict(based_on_style='pep8',
-                          blank_line_before_nested_class_or_def=True,
-                          split_before_expression_after_opening_paren=True)
+        yapf_style = dict(
+            based_on_style='pep8',
+            blank_line_before_nested_class_or_def=True,
+            split_before_expression_after_opening_paren=True)
         text, _ = FormatCode(text, style_config=yapf_style, verify=True)
 
         return text
@@ -390,6 +392,7 @@ class DictAction(Action):
     on the first = and append to a dictionary. List options should
     be passed as comma separated values, i.e KEY=V1,V2,V3
     """
+
     @staticmethod
     def _parse_int_float_bool(val):
         try:

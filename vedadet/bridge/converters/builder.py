@@ -1,4 +1,4 @@
-from vedacore.misc import registry, build_from_cfg
+from vedacore.misc import build_from_cfg, registry
 
 
 def build_converter(cfg):

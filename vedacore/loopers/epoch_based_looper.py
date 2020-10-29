@@ -2,6 +2,7 @@ from .base_looper import BaseLooper
 
 
 class EpochBasedLooper(BaseLooper):
+
     def __init__(self, modes, dataloaders, engines, hook_pool, logger,
                  workdir):
         super().__init__(modes, dataloaders, engines, hook_pool, logger,

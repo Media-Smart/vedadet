@@ -1,17 +1,16 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import itertools
 import logging
+import numpy as np
 import os.path as osp
 import tempfile
-
-import vedacore.fileio as fileio
-import numpy as np
-
-from vedacore.misc import print_log, registry
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from terminaltables import AsciiTable
 
+import vedacore.fileio as fileio
+from vedacore.misc import print_log, registry
 from .custom import CustomDataset
 
 
@@ -121,21 +120,18 @@ class CocoDataset(CustomDataset):
         return data_infos
 
     def _parse_ann_info(self, img_info, ann_info):
-        """Parse bbox and mask annotation.
+        """Parse bbox annotation.
 
         Args:
             ann_info (list[dict]): Annotation info of an image.
-            with_mask (bool): Whether to parse mask annotations.
 
         Returns:
             dict: A dict containing the following keys: bboxes, bboxes_ignore,
-                labels, masks, seg_map. "masks" are raw annotations and not
-                decoded into binary masks.
+                labels.
         """
         gt_bboxes = []
         gt_labels = []
         gt_bboxes_ignore = []
-        gt_masks_ann = []
         for i, ann in enumerate(ann_info):
             if ann.get('ignore', False):
                 continue
@@ -154,7 +150,6 @@ class CocoDataset(CustomDataset):
             else:
                 gt_bboxes.append(bbox)
                 gt_labels.append(self.cat2label[ann['category_id']])
-                gt_masks_ann.append(ann['segmentation'])
 
         if gt_bboxes:
             gt_bboxes = np.array(gt_bboxes, dtype=np.float32)
@@ -168,13 +163,8 @@ class CocoDataset(CustomDataset):
         else:
             gt_bboxes_ignore = np.zeros((0, 4), dtype=np.float32)
 
-        seg_map = img_info['filename'].replace('jpg', 'png')
-
-        ann = dict(bboxes=gt_bboxes,
-                   labels=gt_labels,
-                   bboxes_ignore=gt_bboxes_ignore,
-                   masks=gt_masks_ann,
-                   seg_map=seg_map)
+        ann = dict(
+            bboxes=gt_bboxes, labels=gt_labels, bboxes_ignore=gt_bboxes_ignore)
 
         return ann
 
@@ -230,61 +220,22 @@ class CocoDataset(CustomDataset):
                     json_results.append(data)
         return json_results
 
-    def _segm2json(self, results):
-        """Convert instance segmentation results to COCO json style."""
-        bbox_json_results = []
-        segm_json_results = []
-        for idx in range(len(self)):
-            img_id = self.img_ids[idx]
-            det, seg = results[idx]
-            for label in range(len(det)):
-                # bbox results
-                bboxes = det[label]
-                for i in range(bboxes.shape[0]):
-                    data = dict()
-                    data['image_id'] = img_id
-                    data['bbox'] = self.xyxy2xywh(bboxes[i])
-                    data['score'] = float(bboxes[i][4])
-                    data['category_id'] = self.cat_ids[label]
-                    bbox_json_results.append(data)
-
-                # segm results
-                # some detectors use different scores for bbox and mask
-                if isinstance(seg, tuple):
-                    segms = seg[0][label]
-                    mask_score = seg[1][label]
-                else:
-                    segms = seg[label]
-                    mask_score = [bbox[4] for bbox in bboxes]
-                for i in range(bboxes.shape[0]):
-                    data = dict()
-                    data['image_id'] = img_id
-                    data['bbox'] = self.xyxy2xywh(bboxes[i])
-                    data['score'] = float(mask_score[i])
-                    data['category_id'] = self.cat_ids[label]
-                    if isinstance(segms[i]['counts'], bytes):
-                        segms[i]['counts'] = segms[i]['counts'].decode()
-                    data['segmentation'] = segms[i]
-                    segm_json_results.append(data)
-        return bbox_json_results, segm_json_results
-
     def results2json(self, results, outfile_prefix):
         """Dump the detection results to a COCO style json file.
 
-        There are 3 types of results: proposals, bbox predictions, mask
-        predictions, and they have different data types. This method will
-        automatically recognize the type, and dump them to json files.
+        There are 3 types of results: proposals, bbox predictions and
+        they have different data types. This method will automatically
+        recognize the type, and dump them to json files.
 
         Args:
             results (list[list | tuple | ndarray]): Testing results of the
                 dataset.
             outfile_prefix (str): The filename prefix of the json files. If the
                 prefix is "somepath/xxx", the json files will be named
-                "somepath/xxx.bbox.json", "somepath/xxx.segm.json",
-                "somepath/xxx.proposal.json".
+                "somepath/xxx.bbox.json", "somepath/xxx.proposal.json".
 
         Returns:
-            dict[str: str]: Possible keys are "bbox", "segm", "proposal", and
+            dict[str: str]: Possible keys are "bbox", "proposal", and
                 values are corresponding filenames.
         """
         result_files = dict()
@@ -294,12 +245,9 @@ class CocoDataset(CustomDataset):
             result_files['proposal'] = f'{outfile_prefix}.bbox.json'
             fileio.dump(json_results, result_files['bbox'])
         elif isinstance(results[0], tuple):
-            json_results = self._segm2json(results)
             result_files['bbox'] = f'{outfile_prefix}.bbox.json'
             result_files['proposal'] = f'{outfile_prefix}.bbox.json'
-            result_files['segm'] = f'{outfile_prefix}.segm.json'
             fileio.dump(json_results[0], result_files['bbox'])
-            fileio.dump(json_results[1], result_files['segm'])
         elif isinstance(results[0], np.ndarray):
             json_results = self._proposal2json(results)
             result_files['proposal'] = f'{outfile_prefix}.proposal.json'
@@ -307,33 +255,6 @@ class CocoDataset(CustomDataset):
         else:
             raise TypeError('invalid type of results')
         return result_files
-
-    def fast_eval_recall(self, results, proposal_nums, iou_thrs, logger=None):
-        gt_bboxes = []
-        for i in range(len(self.img_ids)):
-            ann_ids = self.coco.get_ann_ids(img_ids=self.img_ids[i])
-            ann_info = self.coco.load_anns(ann_ids)
-            if len(ann_info) == 0:
-                gt_bboxes.append(np.zeros((0, 4)))
-                continue
-            bboxes = []
-            for ann in ann_info:
-                if ann.get('ignore', False) or ann['iscrowd']:
-                    continue
-                x1, y1, w, h = ann['bbox']
-                bboxes.append([x1, y1, x1 + w, y1 + h])
-            bboxes = np.array(bboxes, dtype=np.float32)
-            if bboxes.shape[0] == 0:
-                bboxes = np.zeros((0, 4))
-            gt_bboxes.append(bboxes)
-
-        recalls = eval_recalls(gt_bboxes,
-                               results,
-                               proposal_nums,
-                               iou_thrs,
-                               logger=logger)
-        ar = recalls.mean(axis=1)
-        return ar
 
     def format_results(self, results, jsonfile_prefix=None, **kwargs):
         """Format the results to json (standard format for COCO evaluation).
@@ -376,7 +297,7 @@ class CocoDataset(CustomDataset):
         Args:
             results (list[list | tuple]): Testing results of the dataset.
             metric (str | list[str]): Metrics to be evaluated. Options are
-                'bbox', 'segm', 'proposal', 'proposal_fast'.
+                'bbox', 'proposal', 'proposal_fast'.
             logger (logging.Logger | str | None): Logger used for printing
                 related information during evaluation. Default: None.
             jsonfile_prefix (str | None): The prefix of json files. It includes
@@ -395,7 +316,7 @@ class CocoDataset(CustomDataset):
         """
 
         metrics = metric if isinstance(metric, list) else [metric]
-        allowed_metrics = ['bbox', 'segm', 'proposal', 'proposal_fast']
+        allowed_metrics = ['bbox', 'proposal']
         for metric in metrics:
             if metric not in allowed_metrics:
                 raise KeyError(f'metric {metric} is not supported')
@@ -410,27 +331,15 @@ class CocoDataset(CustomDataset):
                 msg = '\n' + msg
             print_log(msg, logger=logger)
 
-            if metric == 'proposal_fast':
-                ar = self.fast_eval_recall(results,
-                                           proposal_nums,
-                                           iou_thrs,
-                                           logger='silent')
-                log_msg = []
-                for i, num in enumerate(proposal_nums):
-                    eval_results[f'AR@{num}'] = ar[i]
-                    log_msg.append(f'\nAR@{num}\t{ar[i]:.4f}')
-                log_msg = ''.join(log_msg)
-                print_log(log_msg, logger=logger)
-                continue
-
             if metric not in result_files:
                 raise KeyError(f'{metric} is not in results')
             try:
                 cocoDt = cocoGt.loadRes(result_files[metric])
             except IndexError:
-                print_log('The testing results of the whole dataset is empty.',
-                          logger=logger,
-                          level=logging.ERROR)
+                print_log(
+                    'The testing results of the whole dataset is empty.',
+                    logger=logger,
+                    level=logging.ERROR)
                 break
 
             iou_type = 'bbox' if metric == 'proposal' else metric

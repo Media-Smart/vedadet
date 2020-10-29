@@ -1,6 +1,8 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-from vedacore.modules import build_conv_layer, build_norm_layer
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 from torch import nn as nn
+
+from vedacore.modules import build_conv_layer, build_norm_layer
 
 
 class ResLayer(nn.Sequential):
@@ -21,6 +23,7 @@ class ResLayer(nn.Sequential):
         downsample_first (bool): Downsample at the first block or last block.
             False for Hourglass, True for ResNet. Default: True
     """
+
     def __init__(self,
                  block,
                  inplanes,
@@ -41,17 +44,19 @@ class ResLayer(nn.Sequential):
             if avg_down and stride != 1:
                 conv_stride = 1
                 downsample.append(
-                    nn.AvgPool2d(kernel_size=stride,
-                                 stride=stride,
-                                 ceil_mode=True,
-                                 count_include_pad=False))
+                    nn.AvgPool2d(
+                        kernel_size=stride,
+                        stride=stride,
+                        ceil_mode=True,
+                        count_include_pad=False))
             downsample.extend([
-                build_conv_layer(conv_cfg,
-                                 inplanes,
-                                 planes * block.expansion,
-                                 kernel_size=1,
-                                 stride=conv_stride,
-                                 bias=False),
+                build_conv_layer(
+                    conv_cfg,
+                    inplanes,
+                    planes * block.expansion,
+                    kernel_size=1,
+                    stride=conv_stride,
+                    bias=False),
                 build_norm_layer(norm_cfg, planes * block.expansion)[1]
             ])
             downsample = nn.Sequential(*downsample)
@@ -59,38 +64,42 @@ class ResLayer(nn.Sequential):
         layers = []
         if downsample_first:
             layers.append(
-                block(inplanes=inplanes,
-                      planes=planes,
-                      stride=stride,
-                      downsample=downsample,
-                      conv_cfg=conv_cfg,
-                      norm_cfg=norm_cfg,
-                      **kwargs))
+                block(
+                    inplanes=inplanes,
+                    planes=planes,
+                    stride=stride,
+                    downsample=downsample,
+                    conv_cfg=conv_cfg,
+                    norm_cfg=norm_cfg,
+                    **kwargs))
             inplanes = planes * block.expansion
             for _ in range(1, num_blocks):
                 layers.append(
-                    block(inplanes=inplanes,
-                          planes=planes,
-                          stride=1,
-                          conv_cfg=conv_cfg,
-                          norm_cfg=norm_cfg,
-                          **kwargs))
+                    block(
+                        inplanes=inplanes,
+                        planes=planes,
+                        stride=1,
+                        conv_cfg=conv_cfg,
+                        norm_cfg=norm_cfg,
+                        **kwargs))
 
         else:  # downsample_first=False is for HourglassModule
             for _ in range(num_blocks - 1):
                 layers.append(
-                    block(inplanes=inplanes,
-                          planes=inplanes,
-                          stride=1,
-                          conv_cfg=conv_cfg,
-                          norm_cfg=norm_cfg,
-                          **kwargs))
+                    block(
+                        inplanes=inplanes,
+                        planes=inplanes,
+                        stride=1,
+                        conv_cfg=conv_cfg,
+                        norm_cfg=norm_cfg,
+                        **kwargs))
             layers.append(
-                block(inplanes=inplanes,
-                      planes=planes,
-                      stride=stride,
-                      downsample=downsample,
-                      conv_cfg=conv_cfg,
-                      norm_cfg=norm_cfg,
-                      **kwargs))
+                block(
+                    inplanes=inplanes,
+                    planes=planes,
+                    stride=stride,
+                    downsample=downsample,
+                    conv_cfg=conv_cfg,
+                    norm_cfg=norm_cfg,
+                    **kwargs))
         super(ResLayer, self).__init__(*layers)

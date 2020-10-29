@@ -1,7 +1,7 @@
 import torch
-from vedacore.misc import multi_apply, registry
 
-from vedadet.misc.bbox import distance2bbox, multiclass_nms, bbox2result
+from vedacore.misc import registry
+from vedadet.misc.bbox import bbox2result, distance2bbox, multiclass_nms
 from .base_converter import BaseConverter
 
 INF = 1e8
@@ -9,6 +9,7 @@ INF = 1e8
 
 @registry.register_module('converter')
 class PointAnchorConverter(BaseConverter):
+
     def __init__(self, cls_out_channels, test_cfg, rescale=False):
         super().__init__()
         self.test_cfg = test_cfg
@@ -50,8 +51,8 @@ class PointAnchorConverter(BaseConverter):
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
 
-        #featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
-        #mlvl_points = self.get_points(featmap_sizes, bbox_preds[0].dtype,
+        # featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
+        # mlvl_points = self.get_points(featmap_sizes, bbox_preds[0].dtype,
         #                              bbox_preds[0].device)
         result_list = []
         for img_id in range(len(img_metas)):
@@ -142,13 +143,13 @@ class PointAnchorConverter(BaseConverter):
         # BG cat_id: num_class
         mlvl_scores = torch.cat([mlvl_scores, padding], dim=1)
         mlvl_centerness = torch.cat(mlvl_centerness)
-        det_bboxes, det_labels = multiclass_nms(mlvl_bboxes,
-                                                mlvl_scores,
-                                                test_cfg.score_thr,
-                                                test_cfg.nms,
-                                                test_cfg.max_per_img,
-                                                score_factors=mlvl_centerness)
-        #print('val, det ', det_labels, det_bboxes)
+        det_bboxes, det_labels = multiclass_nms(
+            mlvl_bboxes,
+            mlvl_scores,
+            test_cfg.score_thr,
+            test_cfg.nms,
+            test_cfg.max_per_img,
+            score_factors=mlvl_centerness)
         bbox_result = bbox2result(det_bboxes, det_labels,
                                   self.cls_out_channels)
         return bbox_result

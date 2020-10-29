@@ -1,8 +1,9 @@
-from abc import ABCMeta, abstractmethod
-import torch
 import os.path as osp
+import torch
+from abc import ABCMeta, abstractmethod
 
-from vedacore.misc import load_weights, load_optimizer, load_meta, save_weights, save_optimizer, save_meta
+from vedacore.misc import (load_meta, load_optimizer, load_weights, save_meta,
+                           save_optimizer, save_weights)
 from vedacore.parallel import is_module_wrapper
 
 
@@ -101,14 +102,15 @@ class BaseLooper(metaclass=ABCMeta):
                      prefix=None):
         if torch.cuda.is_available():
             device_id = torch.cuda.current_device()
-            map_location = lambda storage, loc: storage.cuda(device_id)
+
+            # map_location = lambda storage, loc: storage.cuda(device_id)
+            def map_location(storage, loc):
+                storage.cuda(device_id)
+
         self.logger.info('Loading weights from %s', filepath)
         # Wether to load train or val engine is OK
         # they share the same detector
         for engine in self.engines.values():
-            #for mode in BaseLooper.MODES:
-            #if mode in self.engines:
-            #    engine = self.engines[mode]
             if is_module_wrapper(engine):
                 engine = engine.module
             detector = engine.detector
@@ -118,7 +120,11 @@ class BaseLooper(metaclass=ABCMeta):
     def load_optimizer(self, filepath, map_location='cpu'):
         if torch.cuda.is_available():
             device_id = torch.cuda.current_device()
-            map_location = lambda storage, loc: storage.cuda(device_id)
+
+            # map_location = lambda storage, loc: storage.cuda(device_id)
+            def map_location(storage, loc):
+                storage.cuda(device_id)
+
         self.logger.info('Loading optimizer from %s', filepath)
         # Wether to load train or val engine is OK
         # they share the same detector
@@ -131,7 +137,11 @@ class BaseLooper(metaclass=ABCMeta):
     def load_meta(self, filepath, map_location='cpu'):
         if torch.cuda.is_available():
             device_id = torch.cuda.current_device()
-            map_location = lambda storage, loc: storage.cuda(device_id)
+
+            # map_location = lambda storage, loc: storage.cuda(device_id)
+            def map_location(storage, loc):
+                storage.cuda(device_id)
+
         self.logger.info('Loading meta from %s', filepath)
         # Wether to load train or val engine is OK
         # they share the same detector

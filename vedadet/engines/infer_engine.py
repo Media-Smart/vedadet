@@ -1,13 +1,13 @@
 import torch
 
 from vedacore.misc import registry
-from vedadet.bridge import build_converter
-from vedadet.bridge import build_meshgrid
+from vedadet.bridge import build_converter, build_meshgrid
 from .base_engine import BaseEngine
 
 
 @registry.register_module('engine')
 class InferEngine(BaseEngine):
+
     def __init__(self, detector, meshgrid, converter):
         super().__init__(detector)
         self.meshgrid = build_meshgrid(meshgrid)

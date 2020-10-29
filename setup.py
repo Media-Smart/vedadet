@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-import os
-import subprocess
-import time
 from setuptools import find_packages, setup
 
+import os
 import torch
 from torch.utils.cpp_extension import (BuildExtension, CppExtension,
                                        CUDAExtension)
@@ -55,9 +53,9 @@ def parse_requirements(fname='requirements.txt', with_version=True):
     CommandLine:
         python -c "import setup; print(setup.parse_requirements())"
     """
+    import re
     import sys
     from os.path import exists
-    import re
     require_fpath = fname
 
     def parse_line(line):
@@ -134,33 +132,23 @@ if __name__ == '__main__':
         packages=find_packages(include=('vedacore', 'vedadet')),
         package_data={'vedadet.ops': ['*/*.so']},
         setup_requires=parse_requirements('requirements/build.txt'),
-        #tests_require=parse_requirements('requirements.txt'),
+        # tests_require=parse_requirements('requirements.txt'),
         install_requires=parse_requirements('requirements/runtime.txt'),
-        extras_require={
-            'tests': parse_requirements('requirements/tests.txt'),
-        },
+        # extras_require={
+        #     'tests': parse_requirements('requirements/tests.txt'),
+        # },
         ext_modules=[
-            make_cuda_ext(name='nms_ext',
-                          module='vedadet.ops.nms',
-                          sources=['src/nms_ext.cpp', 'src/cpu/nms_cpu.cpp'],
-                          sources_cuda=[
-                              'src/cuda/nms_cuda.cpp', 'src/cuda/nms_kernel.cu'
-                          ]),
-            make_cuda_ext(name='sigmoid_focal_loss_ext',
-                          module='vedadet.ops.sigmoid_focal_loss',
-                          sources=['src/sigmoid_focal_loss_ext.cpp'],
-                          sources_cuda=['src/cuda/sigmoid_focal_loss_cuda.cu'
-                                        ]),
-            make_cuda_ext(name='roi_align_ext',
-                          module='vedadet.ops.roi_align',
-                          sources=[
-                              'src/roi_align_ext.cpp',
-                              'src/cpu/roi_align_v2.cpp',
-                          ],
-                          sources_cuda=[
-                              'src/cuda/roi_align_kernel.cu',
-                              'src/cuda/roi_align_kernel_v2.cu'
-                          ]),
-        ],
+            make_cuda_ext(
+                name='nms_ext',
+                module='vedadet.ops.nms',
+                sources=['src/nms_ext.cpp', 'src/cpu/nms_cpu.cpp'],
+                sources_cuda=[
+                    'src/cuda/nms_cuda.cpp', 'src/cuda/nms_kernel.cu'
+                ]),
+            make_cuda_ext(
+                name='sigmoid_focal_loss_ext',
+                module='vedadet.ops.sigmoid_focal_loss',
+                sources=['src/sigmoid_focal_loss_ext.cpp'],
+                sources_cuda=['src/cuda/sigmoid_focal_loss_cuda.cu'])],
         cmdclass={'build_ext': BuildExtension},
         zip_safe=False)

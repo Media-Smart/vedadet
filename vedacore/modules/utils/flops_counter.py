@@ -23,12 +23,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
-from functools import partial
-
 import numpy as np
+import sys
 import torch
 import torch.nn as nn
+from functools import partial
 
 
 def get_model_complexity_info(model,
@@ -101,11 +100,8 @@ def get_model_complexity_info(model,
 
     flops_count, params_count = flops_model.compute_average_flops_cost()
     if print_per_layer_stat:
-        print_model_with_flops(flops_model,
-                               flops_count,
-                               params_count,
-                               ost=ost,
-                               flush=flush)
+        print_model_with_flops(
+            flops_model, flops_count, params_count, ost=ost, flush=flush)
     flops_model.stop_flops_count()
 
     if as_strings:
@@ -250,6 +246,7 @@ def print_model_with_flops(model,
           (fc): Linear(0.0 M, 0.024% Params, 0.0 GFLOPs, 0.000% FLOPs, in_features=8, out_features=1, bias=True)
         )
     """
+
     def accumulate_params(self):
         if is_supported_instance(self):
             return self.__params__
@@ -272,13 +269,11 @@ def print_model_with_flops(model,
         accumulated_num_params = self.accumulate_params()
         accumulated_flops_cost = self.accumulate_flops()
         return ', '.join([
-            params_to_string(accumulated_num_params,
-                             units='M',
-                             precision=precision),
+            params_to_string(
+                accumulated_num_params, units='M', precision=precision),
             '{:.3%} Params'.format(accumulated_num_params / total_params),
-            flops_to_string(accumulated_flops_cost,
-                            units=units,
-                            precision=precision),
+            flops_to_string(
+                accumulated_flops_cost, units=units, precision=precision),
             '{:.3%} FLOPs'.format(accumulated_flops_cost / total_flops),
             self.original_extra_repr()
         ])
@@ -449,8 +444,8 @@ def deconv_flops_counter_hook(conv_module, input, output):
     groups = conv_module.groups
 
     filters_per_channel = out_channels // groups
-    conv_per_position_flops = (kernel_height * kernel_width * in_channels *
-                               filters_per_channel)
+    conv_per_position_flops = (
+        kernel_height * kernel_width * in_channels * filters_per_channel)
 
     active_elements_count = batch_size * input_height * input_width
     overall_conv_flops = conv_per_position_flops * active_elements_count

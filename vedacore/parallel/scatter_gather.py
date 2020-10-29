@@ -12,6 +12,7 @@ def scatter(inputs, target_gpus, dim=0):
     The only difference from original :func:`scatter` is to add support for
     :type:`~parallel.DataContainer`.
     """
+
     def scatter_map(obj):
         if isinstance(obj, torch.Tensor):
             return OrigScatter.apply(target_gpus, None, dim, obj)

@@ -1,5 +1,4 @@
 import functools
-
 import torch.nn.functional as F
 
 
@@ -73,6 +72,7 @@ def weighted_loss(loss_func):
     >>> l1_loss(pred, target, weight, avg_factor=2)
     tensor(1.5000)
     """
+
     @functools.wraps(loss_func)
     def wrapper(pred,
                 target,

@@ -12,5 +12,6 @@ class MMDistributedDataParallel(DistributedDataParallel):
     - It supports a custom type :class:`DataContainer` which allows more
       flexible control of input data.
     """
+
     def scatter(self, inputs, kwargs, device_ids):
         return scatter_kwargs(inputs, kwargs, device_ids, dim=self.dim)

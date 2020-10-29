@@ -6,6 +6,7 @@ from .base_meshgrid import BaseMeshGrid
 
 @registry.register_module('meshgrid')
 class PointAnchorMeshGrid(BaseMeshGrid):
+
     def __init__(self, strides):
         super().__init__(strides)
 

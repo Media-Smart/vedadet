@@ -1,8 +1,6 @@
 # Copyright (c) Open-MMLab. All rights reserved.
 import functools
 import os
-import subprocess
-
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -26,13 +24,10 @@ def _init_dist_pytorch(backend, **kwargs):
 
 
 def get_dist_info():
-    if 0:  #TORCH_VERSION < '1.0': #TODO
-        initialized = dist._initialized
+    if dist.is_available():
+        initialized = dist.is_initialized()
     else:
-        if dist.is_available():
-            initialized = dist.is_initialized()
-        else:
-            initialized = False
+        initialized = False
     if initialized:
         rank = dist.get_rank()
         world_size = dist.get_world_size()
@@ -43,6 +38,7 @@ def get_dist_info():
 
 
 def master_only(func):
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         rank, _ = get_dist_info()

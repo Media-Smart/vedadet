@@ -1,7 +1,6 @@
 # Copyright (c) Open-MMLab. All rights reserved.
-from enum import Enum
-
 import numpy as np
+from enum import Enum
 
 from .utils import is_str
 

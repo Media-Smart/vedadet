@@ -71,6 +71,7 @@ class NiceRepr(object):
         >>> baz = Baz()
         >>> assert str(baz) == '<Baz(5)>'
     """
+
     def __nice__(self):
         """str: a "nice" summary string describing this module"""
         if hasattr(self, '__len__'):

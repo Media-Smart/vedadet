@@ -1,11 +1,10 @@
-import torch
-
 from vedacore.misc import registry
 from .infer_engine import InferEngine
 
 
 @registry.register_module('engine')
 class ValEngine(InferEngine):
+
     def __init__(self, detector, meshgrid, converter, eval_metric):
         super().__init__(detector, meshgrid, converter)
         self.eval_metric = eval_metric

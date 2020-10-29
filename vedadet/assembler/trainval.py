@@ -1,11 +1,10 @@
 import torch
 
-from vedadet.datasets import build_dataset, build_dataloader
-from vedadet.engines import build_engine
 from vedacore.hooks import HookPool
 from vedacore.loopers import EpochBasedLooper
-from vedacore.parallel import MMDistributedDataParallel
-from vedacore.parallel import MMDataParallel
+from vedacore.parallel import MMDataParallel, MMDistributedDataParallel
+from vedadet.datasets import build_dataloader, build_dataset
+from vedadet.engines import build_engine
 
 
 def trainval(cfg, distributed, logger):
@@ -19,10 +18,11 @@ def trainval(cfg, distributed, logger):
     if 'train' in cfg.modes:
         dataset = build_dataset(cfg.data.train)
 
-        dataloaders['train'] = build_dataloader(dataset,
-                                                cfg.data.samples_per_gpu,
-                                                cfg.data.workers_per_gpu,
-                                                dist=distributed)
+        dataloaders['train'] = build_dataloader(
+            dataset,
+            cfg.data.samples_per_gpu,
+            cfg.data.workers_per_gpu,
+            dist=distributed)
         engine = build_engine(cfg.train_engine)
 
         if distributed:
@@ -32,8 +32,8 @@ def trainval(cfg, distributed, logger):
                 broadcast_buffers=False,
                 find_unused_parameters=find_unused_parameters)
         else:
-            engine = MMDataParallel(engine.cuda(),
-                                    device_ids=[torch.cuda.current_device()])
+            engine = MMDataParallel(
+                engine.cuda(), device_ids=[torch.cuda.current_device()])
 
         engines['train'] = engine
 
@@ -42,7 +42,7 @@ def trainval(cfg, distributed, logger):
 
         dataloaders['val'] = build_dataloader(
             dataset,
-            1,  #cfg.data.samples_per_gpu,
+            1,  # cfg.data.samples_per_gpu,
             cfg.data.workers_per_gpu,
             dist=distributed,
             shuffle=False)
@@ -55,8 +55,8 @@ def trainval(cfg, distributed, logger):
                 broadcast_buffers=False,
                 find_unused_parameters=find_unused_parameters)
         else:
-            engine = MMDataParallel(engine.cuda(),
-                                    device_ids=[torch.cuda.current_device()])
+            engine = MMDataParallel(
+                engine.cuda(), device_ids=[torch.cuda.current_device()])
         engines['val'] = engine
 
     hook_pool = HookPool(cfg.hooks, cfg.modes, logger)

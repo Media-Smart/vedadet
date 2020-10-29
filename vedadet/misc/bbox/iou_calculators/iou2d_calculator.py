@@ -1,6 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-import torch
-
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 from vedacore.misc import registry
 from ..bbox import bbox_overlaps
 
@@ -8,6 +7,7 @@ from ..bbox import bbox_overlaps
 @registry.register_module('iou_calculator')
 class BboxOverlaps2D(object):
     """2D IoU Calculator."""
+
     def __call__(self, bboxes1, bboxes2, mode='iou', is_aligned=False):
         """Calculate IoU between 2D bboxes.
 

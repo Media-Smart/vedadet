@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 from vedacore.modules import ConvModule
 
 plugin_cfg = {

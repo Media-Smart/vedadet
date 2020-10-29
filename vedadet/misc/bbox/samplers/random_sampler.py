@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from vedacore.misc import registry
@@ -18,6 +19,7 @@ class RandomSampler(BaseSampler):
         add_gt_as_proposals (bool, optional): Whether to add ground truth
             boxes as proposals. Defaults to True.
     """
+
     def __init__(self,
                  num,
                  pos_fraction,
@@ -46,9 +48,8 @@ class RandomSampler(BaseSampler):
 
         is_tensor = isinstance(gallery, torch.Tensor)
         if not is_tensor:
-            gallery = torch.tensor(gallery,
-                                   dtype=torch.long,
-                                   device=torch.cuda.current_device())
+            gallery = torch.tensor(
+                gallery, dtype=torch.long, device=torch.cuda.current_device())
         perm = torch.randperm(gallery.numel(), device=gallery.device)[:num]
         rand_inds = gallery[perm]
         if not is_tensor:

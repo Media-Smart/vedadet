@@ -1,12 +1,11 @@
 import torch
 
-from vedadet.misc.anchor import (anchor_inside_flags, images_to_levels)
-
-from vedacore.misc import multi_apply, unmap, registry
-from vedadet.misc.bbox import build_assigner, build_sampler, build_bbox_coder
+from vedacore.misc import multi_apply, registry, unmap
 from vedadet.bridge import build_meshgrid
-from .losses import build_loss
+from vedadet.misc.anchor import anchor_inside_flags, images_to_levels
+from vedadet.misc.bbox import build_assigner, build_bbox_coder, build_sampler
 from .base_criterion import BaseCriterion
+from .losses import build_loss
 
 
 @registry.register_module('criterion')
@@ -34,17 +33,18 @@ class BBoxAnchorCriterion(BaseCriterion):
     def __init__(self,
                  num_classes,
                  meshgrid,
-                 bbox_coder=dict(typename='DeltaXYWHBBoxCoder',
-                                 target_means=(.0, .0, .0, .0),
-                                 target_stds=(1.0, 1.0, 1.0, 1.0)),
+                 bbox_coder=dict(
+                     typename='DeltaXYWHBBoxCoder',
+                     target_means=(.0, .0, .0, .0),
+                     target_stds=(1.0, 1.0, 1.0, 1.0)),
                  reg_decoded_bbox=False,
                  background_label=None,
-                 loss_cls=dict(typename='CrossEntropyLoss',
-                               use_sigmoid=True,
-                               loss_weight=1.0),
-                 loss_bbox=dict(typename='SmoothL1Loss',
-                                beta=1.0 / 9.0,
-                                loss_weight=1.0),
+                 loss_cls=dict(
+                     typename='CrossEntropyLoss',
+                     use_sigmoid=True,
+                     loss_weight=1.0),
+                 loss_bbox=dict(
+                     typename='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
                  train_cfg=None):
         super().__init__()
         self.num_classes = num_classes
@@ -62,8 +62,8 @@ class BBoxAnchorCriterion(BaseCriterion):
             raise ValueError(f'num_classes={num_classes} is too small')
         self.reg_decoded_bbox = reg_decoded_bbox
 
-        self.background_label = (num_classes if background_label is None else
-                                 background_label)
+        self.background_label = (
+            num_classes if background_label is None else background_label)
         # background_label should be either 0 or num_classes
         assert (self.background_label == 0
                 or self.background_label == num_classes)
@@ -85,7 +85,7 @@ class BBoxAnchorCriterion(BaseCriterion):
         self.meshgrid = build_meshgrid(meshgrid)
         # usually the numbers of anchors for each level are the same
         # except SSD detectors
-        #self.num_anchors = self.anchor_generator.num_base_anchors[0]
+        # self.num_anchors = self.anchor_generator.num_base_anchors[0]
 
     def _get_targets_single(self,
                             flat_anchors,
@@ -176,10 +176,11 @@ class BBoxAnchorCriterion(BaseCriterion):
         # map up to original set of anchors
         if unmap_outputs:
             num_total_anchors = flat_anchors.size(0)
-            labels = unmap(labels,
-                           num_total_anchors,
-                           inside_flags,
-                           fill=self.background_label)  # fill bg label
+            labels = unmap(
+                labels,
+                num_total_anchors,
+                inside_flags,
+                fill=self.background_label)  # fill bg label
             label_weights = unmap(label_weights, num_total_anchors,
                                   inside_flags)
             bbox_targets = unmap(bbox_targets, num_total_anchors, inside_flags)
@@ -252,15 +253,16 @@ class BBoxAnchorCriterion(BaseCriterion):
             gt_bboxes_ignore_list = [None for _ in range(num_imgs)]
         if gt_labels_list is None:
             gt_labels_list = [None for _ in range(num_imgs)]
-        results = multi_apply(self._get_targets_single,
-                              concat_anchor_list,
-                              concat_valid_flag_list,
-                              gt_bboxes_list,
-                              gt_bboxes_ignore_list,
-                              gt_labels_list,
-                              img_metas,
-                              label_channels=label_channels,
-                              unmap_outputs=unmap_outputs)
+        results = multi_apply(
+            self._get_targets_single,
+            concat_anchor_list,
+            concat_valid_flag_list,
+            gt_bboxes_list,
+            gt_bboxes_ignore_list,
+            gt_labels_list,
+            img_metas,
+            label_channels=label_channels,
+            unmap_outputs=unmap_outputs)
         (all_labels, all_label_weights, all_bbox_targets, all_bbox_weights,
          pos_inds_list, neg_inds_list, sampling_results_list) = results[:7]
         rest_results = list(results[7:])  # user-added return values
@@ -320,10 +322,8 @@ class BBoxAnchorCriterion(BaseCriterion):
         label_weights = label_weights.reshape(-1)
         cls_score = cls_score.permute(0, 2, 3,
                                       1).reshape(-1, self.cls_out_channels)
-        loss_cls = self.loss_cls(cls_score,
-                                 labels,
-                                 label_weights,
-                                 avg_factor=num_total_samples)
+        loss_cls = self.loss_cls(
+            cls_score, labels, label_weights, avg_factor=num_total_samples)
         # regression loss
         bbox_targets = bbox_targets.reshape(-1, 4)
         bbox_weights = bbox_weights.reshape(-1, 4)
@@ -331,10 +331,11 @@ class BBoxAnchorCriterion(BaseCriterion):
         if self.reg_decoded_bbox:
             anchors = anchors.reshape(-1, 4)
             bbox_pred = self.bbox_coder.decode(anchors, bbox_pred)
-        loss_bbox = self.loss_bbox(bbox_pred,
-                                   bbox_targets,
-                                   bbox_weights,
-                                   avg_factor=num_total_samples)
+        loss_bbox = self.loss_bbox(
+            bbox_pred,
+            bbox_targets,
+            bbox_weights,
+            avg_factor=num_total_samples)
         return loss_cls, loss_bbox
 
     def loss(self,
@@ -343,8 +344,8 @@ class BBoxAnchorCriterion(BaseCriterion):
              gt_labels,
              gt_bboxes,
              gt_bboxes_ignore=None):
-        """Compute losses of the head. 
-        
+        """Compute losses of the head.
+
         Adapted from https://github.com/open-mmlab/mmdetection
 
         Args:
@@ -363,9 +364,6 @@ class BBoxAnchorCriterion(BaseCriterion):
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        #print('img_metas', img_metas)
-        #print('gt_lables', gt_labels)
-        #print('gt_bboxes', gt_bboxes)
         cls_scores, bbox_preds = feats
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
 
@@ -386,8 +384,8 @@ class BBoxAnchorCriterion(BaseCriterion):
             return None
         (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list,
          num_total_pos, num_total_neg) = cls_reg_targets
-        num_total_samples = (num_total_pos +
-                             num_total_neg if self.sampling else num_total_pos)
+        num_total_samples = (
+            num_total_pos + num_total_neg if self.sampling else num_total_pos)
 
         # anchor number of multi levels
         num_level_anchors = [anchors.size(0) for anchors in anchor_list[0]]
@@ -410,10 +408,4 @@ class BBoxAnchorCriterion(BaseCriterion):
             num_total_samples=num_total_samples)
         loss, log_vars = self._parse_losses(
             dict(loss_cls=losses_cls, loss_bbox=losses_bbox))
-        #loss = 0
-        #for ii in losses_cls:
-        #    loss += ii
-        #for ii in losses_bbox:
-        #    loss += ii
-        #return dict(loss_cls=losses_cls, loss_bbox=losses_bbox, loss=loss)
         return dict(loss=loss, log_vars=log_vars)

@@ -25,6 +25,7 @@ class PixelShufflePack(nn.Module):
         upsample_kernel (int): Kernel size of the conv layer to expand the
             channels.
     """
+
     def __init__(self, in_channels, out_channels, scale_factor,
                  upsample_kernel):
         super(PixelShufflePack, self).__init__()
@@ -32,11 +33,11 @@ class PixelShufflePack(nn.Module):
         self.out_channels = out_channels
         self.scale_factor = scale_factor
         self.upsample_kernel = upsample_kernel
-        self.upsample_conv = nn.Conv2d(self.in_channels,
-                                       self.out_channels * scale_factor *
-                                       scale_factor,
-                                       self.upsample_kernel,
-                                       padding=(self.upsample_kernel - 1) // 2)
+        self.upsample_conv = nn.Conv2d(
+            self.in_channels,
+            self.out_channels * scale_factor * scale_factor,
+            self.upsample_kernel,
+            padding=(self.upsample_kernel - 1) // 2)
         self.init_weights()
 
     def init_weights(self):
@@ -73,10 +74,7 @@ def build_upsample_layer(cfg, *args, **kwargs):
     cfg_ = cfg.copy()
 
     layer_type = cfg_.pop('typename')
-    if layer_type not in UPSAMPLE_LAYERS:
-        raise KeyError(f'Unrecognized upsample type {layer_type}')
-    else:
-        upsample = UPSAMPLE_LAYERS.get(layer_type)
+    upsample = registry.get(layer_type, 'upsample')
 
     if upsample is nn.Upsample:
         cfg_['mode'] = layer_type

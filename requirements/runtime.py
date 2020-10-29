@@ -1,6 +1,5 @@
 addict
 terminaltables
-albumentations
 opencv-python
 torchvision>=0.7.0
 pyyaml

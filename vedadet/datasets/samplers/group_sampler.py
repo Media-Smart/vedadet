@@ -1,14 +1,17 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 from __future__ import division
-import math
 
+import math
 import numpy as np
 import torch
-from vedacore.parallel import get_dist_info
 from torch.utils.data import Sampler
+
+from vedacore.parallel import get_dist_info
 
 
 class GroupSampler(Sampler):
+
     def __init__(self, dataset, samples_per_gpu=1):
         assert hasattr(dataset, 'flag')
         self.dataset = dataset
@@ -65,6 +68,7 @@ class DistributedGroupSampler(Sampler):
             distributed training.
         rank (optional): Rank of the current process within num_replicas.
     """
+
     def __init__(self,
                  dataset,
                  samples_per_gpu=1,
@@ -119,8 +123,8 @@ class DistributedGroupSampler(Sampler):
 
         indices = [
             indices[j] for i in list(
-                torch.randperm(len(indices) // self.samples_per_gpu,
-                               generator=g))
+                torch.randperm(
+                    len(indices) // self.samples_per_gpu, generator=g))
             for j in range(i * self.samples_per_gpu, (i + 1) *
                            self.samples_per_gpu)
         ]

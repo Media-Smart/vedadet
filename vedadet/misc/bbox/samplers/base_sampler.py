@@ -1,13 +1,14 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-from abc import ABCMeta, abstractmethod
-
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
+from abc import ABCMeta, abstractmethod
 
 from .sampling_result import SamplingResult
 
 
 class BaseSampler(metaclass=ABCMeta):
     """Base class of samplers."""
+
     def __init__(self,
                  num,
                  pos_fraction,
@@ -80,10 +81,8 @@ class BaseSampler(metaclass=ABCMeta):
             gt_flags = torch.cat([gt_ones, gt_flags])
 
         num_expected_pos = int(self.num * self.pos_fraction)
-        pos_inds = self.pos_sampler._sample_pos(assign_result,
-                                                num_expected_pos,
-                                                bboxes=bboxes,
-                                                **kwargs)
+        pos_inds = self.pos_sampler._sample_pos(
+            assign_result, num_expected_pos, bboxes=bboxes, **kwargs)
         # We found that sampled indices have duplicated items occasionally.
         # (may be a bug of PyTorch)
         pos_inds = pos_inds.unique()
@@ -94,10 +93,8 @@ class BaseSampler(metaclass=ABCMeta):
             neg_upper_bound = int(self.neg_pos_ub * _pos)
             if num_expected_neg > neg_upper_bound:
                 num_expected_neg = neg_upper_bound
-        neg_inds = self.neg_sampler._sample_neg(assign_result,
-                                                num_expected_neg,
-                                                bboxes=bboxes,
-                                                **kwargs)
+        neg_inds = self.neg_sampler._sample_neg(
+            assign_result, num_expected_neg, bboxes=bboxes, **kwargs)
         neg_inds = neg_inds.unique()
 
         sampling_result = SamplingResult(pos_inds, neg_inds, bboxes, gt_bboxes,

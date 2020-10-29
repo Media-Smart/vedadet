@@ -1,9 +1,11 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 from abc import ABCMeta, abstractmethod
 
 
 class BaseBBoxCoder(metaclass=ABCMeta):
     """Base bounding box coder."""
+
     def __init__(self, **kwargs):
         pass
 

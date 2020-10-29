@@ -1,14 +1,12 @@
-import torch
-
-from vedacore.optimizers import build_optimizer
 from vedacore.misc import registry
-
+from vedacore.optimizers import build_optimizer
 from vedadet.criteria import build_criterion
 from .base_engine import BaseEngine
 
 
 @registry.register_module('engine')
 class TrainEngine(BaseEngine):
+
     def __init__(self, detector, criterion, optimizer):
         super().__init__(detector)
         self.criterion = build_criterion(criterion)

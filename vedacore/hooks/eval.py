@@ -1,14 +1,13 @@
-import tempfile
-import torch
-from vedacore.misc import mkdir_or_exist
-import vedacore.fileio as fileio
-import torch.distributed as dist
-import shutil
 import os.path as osp
-import time
 import random
+import shutil
+import tempfile
+import time
+import torch
+import torch.distributed as dist
 
-from vedacore.misc import registry
+import vedacore.fileio as fileio
+from vedacore.misc import mkdir_or_exist, registry
 from vedacore.parallel import get_dist_info
 from .base_hook import BaseHook
 
@@ -27,9 +26,8 @@ def collect_results_cpu(result_part, size, tmpdir=None):
                                 device='cuda')
         if rank == 0:
             tmpdir = tempfile.mkdtemp()
-            tmpdir = torch.tensor(bytearray(tmpdir.encode()),
-                                  dtype=torch.uint8,
-                                  device='cuda')
+            tmpdir = torch.tensor(
+                bytearray(tmpdir.encode()), dtype=torch.uint8, device='cuda')
             dir_tensor[:len(tmpdir)] = tmpdir
         dist.broadcast(dir_tensor, 0)
         tmpdir = dir_tensor.cpu().numpy().tobytes().decode().rstrip()
@@ -60,6 +58,7 @@ def collect_results_cpu(result_part, size, tmpdir=None):
 
 @registry.register_module('hook')
 class EvalHook(BaseHook):
+
     def __init__(self, tmpdir=None):
         if tmpdir is None:
             timestamp = time.strftime('%Y%m%d%H%M%S', time.localtime())
@@ -79,7 +78,7 @@ class EvalHook(BaseHook):
         rank, world_size = get_dist_info()
         if world_size > 1:
             all_results = collect_results_cpu(results, len(looper.val_dataset),
-                                          self.tmpdir)
+                                              self.tmpdir)
         else:
             all_results = results
         if rank == 0:

@@ -1,13 +1,13 @@
 import torch
 
-from vedadet.misc.bbox import multiclass_nms, build_bbox_coder, bbox2result
 from vedacore.misc import registry
-
+from vedadet.misc.bbox import bbox2result, build_bbox_coder, multiclass_nms
 from .base_converter import BaseConverter
 
 
 @registry.register_module('converter')
 class BBoxAnchorConverter(BaseConverter):
+
     def __init__(self,
                  num_classes,
                  test_cfg,
@@ -83,11 +83,6 @@ class BBoxAnchorConverter(BaseConverter):
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
 
-        device = cls_scores[0].device
-        featmap_sizes = [cls_scores[i].shape[-2:] for i in range(num_levels)]
-        #mlvl_anchors = self.anchor_generator.grid_anchors(
-        #    featmap_sizes, device=device)
-
         result_list = []
         for img_id in range(len(img_metas)):
             cls_score_list = [
@@ -96,8 +91,8 @@ class BBoxAnchorConverter(BaseConverter):
             bbox_pred_list = [
                 bbox_preds[i][img_id].detach() for i in range(num_levels)
             ]
-            anchors = mlvl_anchors[0][
-                img_id]  # TODO: hard code. 0 for anchor_list, 1 for valid_flag_list
+            # TODO: hard code. 0 for anchor_list, 1 for valid_flag_list
+            anchors = mlvl_anchors[0][img_id]
             img_shape = img_metas[img_id]['img_shape']
             scale_factor = img_metas[img_id]['scale_factor']
             proposals = self._get_bboxes_single(cls_score_list, bbox_pred_list,
@@ -139,8 +134,8 @@ class BBoxAnchorConverter(BaseConverter):
                 are bounding box positions (tl_x, tl_y, br_x, br_y) and the
                 5-th column is a score between 0 and 1.
         """
-        #if len(mlvl_anchors) > 1:
-        #    mlvl_anchors = mlvl_anchors[0]
+        # if len(mlvl_anchors) > 1:
+        #     mlvl_anchors = mlvl_anchors[0]
         cfg = self.test_cfg if cfg is None else cfg
         assert len(cls_score_list) == len(bbox_pred_list) == len(mlvl_anchors)
         mlvl_bboxes = []
@@ -169,9 +164,8 @@ class BBoxAnchorConverter(BaseConverter):
                 anchors = anchors[topk_inds, :]
                 bbox_pred = bbox_pred[topk_inds, :]
                 scores = scores[topk_inds, :]
-            bboxes = self.bbox_coder.decode(anchors,
-                                            bbox_pred,
-                                            max_shape=img_shape)
+            bboxes = self.bbox_coder.decode(
+                anchors, bbox_pred, max_shape=img_shape)
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
         mlvl_bboxes = torch.cat(mlvl_bboxes)
@@ -187,11 +181,6 @@ class BBoxAnchorConverter(BaseConverter):
         det_bboxes, det_labels = multiclass_nms(mlvl_bboxes, mlvl_scores,
                                                 cfg.score_thr, cfg.nms,
                                                 cfg.max_per_img)
-        #print('----')
-        #print('det\n', det_bboxes, det_labels)
         bbox_result = bbox2result(det_bboxes, det_labels,
                                   self.cls_out_channels)
-        #print('det 42\n', bbox_result[42])
-        #print('det 55\n', bbox_result[55])
-        #print('det 60\n', bbox_result[60])
-        return bbox_result  #det_bboxes, det_labels
+        return bbox_result

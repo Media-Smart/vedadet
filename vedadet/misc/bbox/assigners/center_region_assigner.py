@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from vedacore.misc import registry
@@ -87,6 +88,7 @@ class CenterRegionAssigner(BaseAssigner):
         ignore_gt_scale (float): Threshold within which the pixels
           are ignored when the gt is labelled as shadowed. Default: 0.5
     """
+
     def __init__(self,
                  pos_scale,
                  neg_scale,
@@ -172,15 +174,15 @@ class CenterRegionAssigner(BaseAssigner):
         is_bbox_in_gt = is_located_in(bbox_centers, gt_bboxes)
         # Only calculate bbox and gt_core IoF. This enables small prior bboxes
         #   to match large gts
-        bbox_and_gt_core_overlaps = self.iou_calculator(bboxes,
-                                                        gt_core,
-                                                        mode='iof')
+        bbox_and_gt_core_overlaps = self.iou_calculator(
+            bboxes, gt_core, mode='iof')
         # The center point of effective priors should be within the gt box
         is_bbox_in_gt_core = is_bbox_in_gt & (
             bbox_and_gt_core_overlaps > self.min_pos_iof)  # shape (n, k)
 
-        is_bbox_in_gt_shadow = (self.iou_calculator(
-            bboxes, gt_shadow, mode='iof') > self.min_pos_iof)
+        is_bbox_in_gt_shadow = (
+            self.iou_calculator(bboxes, gt_shadow, mode='iof') >
+            self.min_pos_iof)
         # Rule out center effective positive pixels
         is_bbox_in_gt_shadow &= (~is_bbox_in_gt_core)
 
@@ -202,8 +204,8 @@ class CenterRegionAssigner(BaseAssigner):
 
         if gt_bboxes_ignore is not None and gt_bboxes_ignore.numel() > 0:
             # No ground truth or boxes, return empty assignment
-            gt_bboxes_ignore = scale_boxes(gt_bboxes_ignore,
-                                           scale=self.ignore_gt_scale)
+            gt_bboxes_ignore = scale_boxes(
+                gt_bboxes_ignore, scale=self.ignore_gt_scale)
             is_bbox_in_ignored_gts = is_located_in(bbox_centers,
                                                    gt_bboxes_ignore)
             is_bbox_in_ignored_gts = is_bbox_in_ignored_gts.any(dim=1)
@@ -215,8 +217,8 @@ class CenterRegionAssigner(BaseAssigner):
         if gt_labels is not None:
             # Default assigned label is the background (-1)
             assigned_labels = assigned_gt_ids.new_full((num_bboxes, ), -1)
-            pos_inds = torch.nonzero(assigned_gt_ids > 0,
-                                     as_tuple=False).squeeze()
+            pos_inds = torch.nonzero(
+                assigned_gt_ids > 0, as_tuple=False).squeeze()
             if pos_inds.numel() > 0:
                 assigned_labels[pos_inds] = gt_labels[assigned_gt_ids[pos_inds]
                                                       - 1]
@@ -234,10 +236,8 @@ class CenterRegionAssigner(BaseAssigner):
                 assigned_labels[pixel_idx[override]] = -1
                 assigned_gt_ids[pixel_idx[override]] = 0
 
-        assign_result = AssignResult(num_gts,
-                                     assigned_gt_ids,
-                                     None,
-                                     labels=assigned_labels)
+        assign_result = AssignResult(
+            num_gts, assigned_gt_ids, None, labels=assigned_labels)
         # Add shadowed_labels as assign_result property. Shape: (num_shadow, 2)
         assign_result.set_extra_property('shadowed_labels',
                                          shadowed_pixel_labels)
@@ -272,8 +272,8 @@ class CenterRegionAssigner(BaseAssigner):
         num_bboxes, num_gts = is_bbox_in_gt_core.shape
 
         if gt_priority is None:
-            gt_priority = torch.arange(num_gts,
-                                       device=is_bbox_in_gt_core.device)
+            gt_priority = torch.arange(
+                num_gts, device=is_bbox_in_gt_core.device)
         assert gt_priority.size(0) == num_gts
         # The bigger gt_priority, the more preferable to be assigned
         # The assigned inds are by default 0 (background)
@@ -300,8 +300,8 @@ class CenterRegionAssigner(BaseAssigner):
         inds_of_match = torch.any(is_bbox_in_gt_core, dim=1)
         # The matched gt index of each positive bbox. Length >= num_pos_anchor
         #   , since one bbox could match multiple gts
-        matched_bbox_gt_inds = torch.nonzero(is_bbox_in_gt_core,
-                                             as_tuple=False)[:, 1]
+        matched_bbox_gt_inds = torch.nonzero(
+            is_bbox_in_gt_core, as_tuple=False)[:, 1]
         # Assign priority to each bbox-gt pair.
         pair_priority[is_bbox_in_gt_core] = gt_priority[matched_bbox_gt_inds]
         _, argmax_priority = pair_priority[inds_of_match].max(dim=1)
@@ -311,8 +311,8 @@ class CenterRegionAssigner(BaseAssigner):
         # Concat the shadowed indices due to overlapping with that out side of
         #   effective scale. shape: (total_num_ignore, 2)
         shadowed_gt_inds = torch.cat(
-            (shadowed_gt_inds, torch.nonzero(is_bbox_in_gt_core,
-                                             as_tuple=False)),
+            (shadowed_gt_inds, torch.nonzero(
+                is_bbox_in_gt_core, as_tuple=False)),
             dim=0)
         # `is_bbox_in_gt_core` should be changed back to keep arguments intact.
         is_bbox_in_gt_core[inds_of_match, argmax_priority] = 1

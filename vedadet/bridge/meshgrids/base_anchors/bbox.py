@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import numpy as np
 import torch
 
@@ -7,6 +8,7 @@ from vedacore.misc import registry
 
 @registry.register_module('base_anchor')
 class BBoxBaseAnchor:
+
     def __init__(self,
                  ratios,
                  scales=None,
@@ -30,8 +32,8 @@ class BBoxBaseAnchor:
                              f'{center_offset} is given.')
         if centers is not None:
             assert len(centers) == len(base_sizes), \
-                'The number of base_sizes should be the same as centers, got ' \
-                f'{base_sizes} and {centers}'
+                'The number of base_sizes should be the same as centers, ' \
+                f'got {base_sizes} and {centers}'
 
         # calculate scales of anchors
         assert ((octave_base_scale is not None

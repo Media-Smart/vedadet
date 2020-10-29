@@ -1,10 +1,11 @@
-from abc import ABCMeta, abstractmethod
-from collections import OrderedDict
 import torch
 import torch.distributed as dist
+from abc import ABCMeta, abstractmethod
+from collections import OrderedDict
 
 
 class BaseCriterion(metaclass=ABCMeta):
+
     def __init__(self):
         pass
 

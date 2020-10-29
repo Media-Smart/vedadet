@@ -1,6 +1,7 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-import torch
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import numpy as np
+import torch
 
 from vedacore.misc import registry
 from .base_anchors import build_base_anchor
@@ -9,6 +10,7 @@ from .base_meshgrid import BaseMeshGrid
 
 @registry.register_module('meshgrid')
 class BBoxAnchorMeshGrid(BaseMeshGrid):
+
     def __init__(self, strides, base_anchor):
         super().__init__(strides)
         self.base_anchors = build_base_anchor(base_anchor).generate()
@@ -84,8 +86,8 @@ class BBoxAnchorMeshGrid(BaseMeshGrid):
             torch.Tensor: Anchors in the overall feature maps.
         """
         feat_h, feat_w = featmap_size
-        #shift_x = torch.arange(0, feat_w, device=device) * stride[0]
-        #shift_y = torch.arange(0, feat_h, device=device) * stride[1]
+        # shift_x = torch.arange(0, feat_w, device=device) * stride[0]
+        # shift_y = torch.arange(0, feat_h, device=device) * stride[1]
         shift_x = torch.arange(0, feat_w, device=device) * stride
         shift_y = torch.arange(0, feat_h, device=device) * stride
         shift_xx, shift_yy = self._meshgrid(shift_x, shift_y)
@@ -138,8 +140,8 @@ class BBoxAnchorMeshGrid(BaseMeshGrid):
             anchor_stride = self.strides[i]
             feat_h, feat_w = featmap_sizes[i]
             h, w = pad_shape[:2]
-            #valid_feat_h = min(int(np.ceil(h / anchor_stride[0])), feat_h)
-            #valid_feat_w = min(int(np.ceil(w / anchor_stride[1])), feat_w)
+            # valid_feat_h = min(int(np.ceil(h / anchor_stride[0])), feat_h)
+            # valid_feat_w = min(int(np.ceil(w / anchor_stride[1])), feat_w)
             valid_feat_h = min(int(np.ceil(h / anchor_stride)), feat_h)
             valid_feat_w = min(int(np.ceil(w / anchor_stride)), feat_w)
             flags = self._single_level_valid_flags(

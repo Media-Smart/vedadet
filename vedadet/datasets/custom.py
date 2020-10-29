@@ -1,11 +1,11 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-import os.path as osp
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import numpy as np
+import os.path as osp
 from torch.utils.data import Dataset
 
 import vedacore.fileio as fileio
 from vedacore.misc import registry
-
 from .pipelines import Compose
 
 
@@ -39,7 +39,7 @@ class CustomDataset(Dataset):
         classes (str | Sequence[str], optional): Specify classes to load.
             If is None, ``cls.CLASSES`` will be used. Default: None.
         data_root (str, optional): Data root for ``ann_file``,
-            ``img_prefix``, ``seg_prefix``, ``proposal_file`` if specified.
+            ``img_prefix``, ``proposal_file`` if specified.
         test_mode (bool, optional): If set True, annotation will not be loaded.
         filter_empty_gt (bool, optional): If set true, images without bounding
             boxes will be filtered out.
@@ -53,14 +53,12 @@ class CustomDataset(Dataset):
                  classes=None,
                  data_root=None,
                  img_prefix='',
-                 seg_prefix=None,
                  proposal_file=None,
                  test_mode=False,
                  filter_empty_gt=True):
         self.ann_file = ann_file
         self.data_root = data_root
         self.img_prefix = img_prefix
-        self.seg_prefix = seg_prefix
         self.proposal_file = proposal_file
         self.test_mode = test_mode
         self.filter_empty_gt = filter_empty_gt
@@ -72,8 +70,6 @@ class CustomDataset(Dataset):
                 self.ann_file = osp.join(self.data_root, self.ann_file)
             if not (self.img_prefix is None or osp.isabs(self.img_prefix)):
                 self.img_prefix = osp.join(self.data_root, self.img_prefix)
-            if not (self.seg_prefix is None or osp.isabs(self.seg_prefix)):
-                self.seg_prefix = osp.join(self.data_root, self.seg_prefix)
             if not (self.proposal_file is None
                     or osp.isabs(self.proposal_file)):
                 self.proposal_file = osp.join(self.data_root,
@@ -139,11 +135,8 @@ class CustomDataset(Dataset):
     def pre_pipeline(self, results):
         """Prepare results dict for pipeline."""
         results['img_prefix'] = self.img_prefix
-        results['seg_prefix'] = self.seg_prefix
         results['proposal_file'] = self.proposal_file
         results['bbox_fields'] = []
-        results['mask_fields'] = []
-        results['seg_fields'] = []
 
     def _filter_imgs(self, min_size=32):
         """Filter images too small."""
@@ -258,62 +251,3 @@ class CustomDataset(Dataset):
     def format_results(self, results, **kwargs):
         """Place holder to format result to dataset specific output."""
         pass
-
-    def evaluate(self,
-                 results,
-                 metric='mAP',
-                 logger=None,
-                 proposal_nums=(100, 300, 1000),
-                 iou_thr=0.5,
-                 scale_ranges=None):
-        """Evaluate the dataset.
-
-        Args:
-            results (list): Testing results of the dataset.
-            metric (str | list[str]): Metrics to be evaluated.
-            logger (logging.Logger | None | str): Logger used for printing
-                related information during evaluation. Default: None.
-            proposal_nums (Sequence[int]): Proposal number used for evaluating
-                recalls, such as recall@100, recall@1000.
-                Default: (100, 300, 1000).
-            iou_thr (float | list[float]): IoU threshold. It must be a float
-                when evaluating mAP, and can be a list when evaluating recall.
-                Default: 0.5.
-            scale_ranges (list[tuple] | None): Scale ranges for evaluating mAP.
-                Default: None.
-        """
-
-        if not isinstance(metric, str):
-            assert len(metric) == 1
-            metric = metric[0]
-        allowed_metrics = ['mAP', 'recall']
-        if metric not in allowed_metrics:
-            raise KeyError(f'metric {metric} is not supported')
-        annotations = [self.get_ann_info(i) for i in range(len(self))]
-        eval_results = {}
-        if metric == 'mAP':
-            assert isinstance(iou_thr, float)
-            mean_ap, _ = eval_map(results,
-                                  annotations,
-                                  scale_ranges=scale_ranges,
-                                  iou_thr=iou_thr,
-                                  dataset=self.CLASSES,
-                                  logger=logger)
-            eval_results['mAP'] = mean_ap
-        elif metric == 'recall':
-            gt_bboxes = [ann['bboxes'] for ann in annotations]
-            if isinstance(iou_thr, float):
-                iou_thr = [iou_thr]
-            recalls = eval_recalls(gt_bboxes,
-                                   results,
-                                   proposal_nums,
-                                   iou_thr,
-                                   logger=logger)
-            for i, num in enumerate(proposal_nums):
-                for j, iou in enumerate(iou_thr):
-                    eval_results[f'recall@{num}@{iou}'] = recalls[i, j]
-            if recalls.shape[1] > 1:
-                ar = recalls.mean(axis=1)
-                for i, num in enumerate(proposal_nums):
-                    eval_results[f'AR@{num}'] = ar[i]
-        return eval_results

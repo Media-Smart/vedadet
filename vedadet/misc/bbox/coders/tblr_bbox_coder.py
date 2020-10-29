@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from vedacore.misc import registry
@@ -19,6 +20,7 @@ class TBLRBBoxCoder(BaseBBoxCoder):
           have length of 4 indicating normalization factor in tblr dims.
           Otherwise it is a unified float factor for all dims. Default: 4.0
     """
+
     def __init__(self, normalizer=4.0):
         super(BaseBBoxCoder, self).__init__()
         self.normalizer = normalizer
@@ -38,9 +40,8 @@ class TBLRBBoxCoder(BaseBBoxCoder):
         """
         assert bboxes.size(0) == gt_bboxes.size(0)
         assert bboxes.size(-1) == gt_bboxes.size(-1) == 4
-        encoded_bboxes = bboxes2tblr(bboxes,
-                                     gt_bboxes,
-                                     normalizer=self.normalizer)
+        encoded_bboxes = bboxes2tblr(
+            bboxes, gt_bboxes, normalizer=self.normalizer)
         return encoded_bboxes
 
     def decode(self, bboxes, pred_bboxes, max_shape=None):
@@ -56,10 +57,11 @@ class TBLRBBoxCoder(BaseBBoxCoder):
             torch.Tensor: Decoded boxes.
         """
         assert pred_bboxes.size(0) == bboxes.size(0)
-        decoded_bboxes = tblr2bboxes(bboxes,
-                                     pred_bboxes,
-                                     normalizer=self.normalizer,
-                                     max_shape=max_shape)
+        decoded_bboxes = tblr2bboxes(
+            bboxes,
+            pred_bboxes,
+            normalizer=self.normalizer,
+            max_shape=max_shape)
 
         return decoded_bboxes
 

@@ -25,6 +25,7 @@ class SnapshotHook(BaseHook):
             like to delete old ones to save the disk space.
             Default: -1, which means unlimited.
     """
+
     def __init__(self,
                  interval=-1,
                  by_epoch=True,
@@ -46,9 +47,8 @@ class SnapshotHook(BaseHook):
 
         if not self.outdir:
             self.outdir = looper.workdir
-        looper.save_snapshot(self.outdir,
-                             save_optim_flag=self.save_optim_flag,
-                             **self.args)
+        looper.save_snapshot(
+            self.outdir, save_optim_flag=self.save_optim_flag, **self.args)
 
         # remove other checkpoints
         if self.max_keep_ckpts > 0:
@@ -71,9 +71,8 @@ class SnapshotHook(BaseHook):
             f'Saving checkpoint at {looper.iter + 1} iterations')
         if not self.outdir:
             self.outdir = looper.workdir
-        looper.save_checkpoint(self.outdir,
-                               save_optimizer=self.save_optimizer,
-                               **self.args)
+        looper.save_checkpoint(
+            self.outdir, save_optimizer=self.save_optimizer, **self.args)
 
         # remove other checkpoints
         if self.max_keep_ckpts > 0:

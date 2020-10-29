@@ -1,14 +1,13 @@
 import argparse
-
-import torch
 import cv2
 import numpy as np
+import torch
 
-from vedacore.parallel import collate, scatter
-from vedacore.misc import load_weights, Config, color_val
 from vedacore.image import imread, imwrite
-from vedadet.engines import build_engine
+from vedacore.misc import Config, color_val, load_weights
+from vedacore.parallel import collate, scatter
 from vedadet.datasets.pipelines import Compose
+from vedadet.engines import build_engine
 
 
 def parse_args():
@@ -39,15 +38,15 @@ def plot_result(result, imgfp, class_names, outfp='out.jpg'):
     text_color = 'green'
     thickness = 1
 
-    bbox_color = color_val(bbox_color) 
-    text_color = color_val(text_color) 
+    bbox_color = color_val(bbox_color)
+    text_color = color_val(text_color)
     img = imread(imgfp)
 
     bboxes = np.vstack(result)
     labels = [
         np.full(bbox.shape[0], idx, dtype=np.int32)
         for idx, bbox in enumerate(result)
-        ]
+    ]
     labels = np.concatenate(labels)
 
     for bbox, label in zip(bboxes, labels):
@@ -55,7 +54,8 @@ def plot_result(result, imgfp, class_names, outfp='out.jpg'):
         left_top = (bbox_int[0], bbox_int[1])
         right_bottom = (bbox_int[2], bbox_int[3])
         cv2.rectangle(img, left_top, right_bottom, bbox_color, thickness)
-        label_text = class_names[label] if class_names is not None else f'cls {label}'
+        label_text = class_names[
+            label] if class_names is not None else f'cls {label}'
         if len(bbox) > 4:
             label_text += f'|{bbox[-1]:.02f}'
         cv2.putText(img, label_text, (bbox_int[0], bbox_int[1] - 2),

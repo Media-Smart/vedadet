@@ -1,14 +1,14 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import copy
+import numpy as np
 import platform
 import random
 from functools import partial
-
-import numpy as np
-from vedacore.parallel import collate, get_dist_info
-from vedacore.misc import registry, build_from_cfg
 from torch.utils.data import DataLoader
 
+from vedacore.misc import build_from_cfg, registry
+from vedacore.parallel import collate, get_dist_info
 from .samplers import DistributedGroupSampler, DistributedSampler, GroupSampler
 
 if platform.system() != 'Windows':
@@ -24,7 +24,6 @@ def _concat_dataset(cfg, default_args=None):
     from .dataset_wrappers import ConcatDataset
     ann_files = cfg['ann_file']
     img_prefixes = cfg.get('img_prefix', None)
-    seg_prefixes = cfg.get('seg_prefix', None)
     proposal_files = cfg.get('proposal_file', None)
 
     datasets = []
@@ -34,8 +33,6 @@ def _concat_dataset(cfg, default_args=None):
         data_cfg['ann_file'] = ann_files[i]
         if isinstance(img_prefixes, (list, tuple)):
             data_cfg['img_prefix'] = img_prefixes[i]
-        if isinstance(seg_prefixes, (list, tuple)):
-            data_cfg['seg_prefix'] = seg_prefixes[i]
         if isinstance(proposal_files, (list, tuple)):
             data_cfg['proposal_file'] = proposal_files[i]
         datasets.append(build_dataset(data_cfg, default_args))
@@ -44,13 +41,13 @@ def _concat_dataset(cfg, default_args=None):
 
 
 def build_dataset(cfg, default_args=None):
-    from .dataset_wrappers import (ConcatDataset, RepeatDataset,
-                                   ClassBalancedDataset)
+    from .dataset_wrappers import (ClassBalancedDataset, ConcatDataset,
+                                   RepeatDataset)
     if isinstance(cfg, (list, tuple)):
         dataset = ConcatDataset([build_dataset(c, default_args) for c in cfg])
     elif cfg['typename'] == 'RepeatDataset':
-        dataset = RepeatDataset(build_dataset(cfg['dataset'], default_args),
-                                cfg['times'])
+        dataset = RepeatDataset(
+            build_dataset(cfg['dataset'], default_args), cfg['times'])
     elif cfg['typename'] == 'ClassBalancedDataset':
         dataset = ClassBalancedDataset(
             build_dataset(cfg['dataset'], default_args), cfg['oversample_thr'])
@@ -98,10 +95,8 @@ def build_dataloader(dataset,
             sampler = DistributedGroupSampler(dataset, samples_per_gpu,
                                               world_size, rank)
         else:
-            sampler = DistributedSampler(dataset,
-                                         world_size,
-                                         rank,
-                                         shuffle=False)
+            sampler = DistributedSampler(
+                dataset, world_size, rank, shuffle=False)
         batch_size = samples_per_gpu
         num_workers = workers_per_gpu
     else:
@@ -113,15 +108,15 @@ def build_dataloader(dataset,
         worker_init_fn, num_workers=num_workers, rank=rank,
         seed=seed) if seed is not None else None
 
-    data_loader = DataLoader(dataset,
-                             batch_size=batch_size,
-                             sampler=sampler,
-                             num_workers=num_workers,
-                             collate_fn=partial(
-                                 collate, samples_per_gpu=samples_per_gpu),
-                             pin_memory=False,
-                             worker_init_fn=init_fn,
-                             **kwargs)
+    data_loader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        sampler=sampler,
+        num_workers=num_workers,
+        collate_fn=partial(collate, samples_per_gpu=samples_per_gpu),
+        pin_memory=False,
+        worker_init_fn=init_fn,
+        **kwargs)
 
     return data_loader
 

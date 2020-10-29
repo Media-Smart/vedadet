@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from vedacore.misc import registry
@@ -37,6 +38,7 @@ class MaxIoUAssigner(BaseAssigner):
             assign. When the number of gt is above this threshold, will assign
             on CPU device. Negative values mean not assign on CPU.
     """
+
     def __init__(self,
                  pos_iou_thr,
                  neg_iou_thr,
@@ -107,14 +109,12 @@ class MaxIoUAssigner(BaseAssigner):
         if (self.ignore_iof_thr > 0 and gt_bboxes_ignore is not None
                 and gt_bboxes_ignore.numel() > 0 and bboxes.numel() > 0):
             if self.ignore_wrt_candidates:
-                ignore_overlaps = self.iou_calculator(bboxes,
-                                                      gt_bboxes_ignore,
-                                                      mode='iof')
+                ignore_overlaps = self.iou_calculator(
+                    bboxes, gt_bboxes_ignore, mode='iof')
                 ignore_max_overlaps, _ = ignore_overlaps.max(dim=1)
             else:
-                ignore_overlaps = self.iou_calculator(gt_bboxes_ignore,
-                                                      bboxes,
-                                                      mode='iof')
+                ignore_overlaps = self.iou_calculator(
+                    gt_bboxes_ignore, bboxes, mode='iof')
                 ignore_max_overlaps, _ = ignore_overlaps.max(dim=0)
             overlaps[:, ignore_max_overlaps > self.ignore_iof_thr] = -1
 
@@ -156,10 +156,11 @@ class MaxIoUAssigner(BaseAssigner):
                 assigned_labels = overlaps.new_full((num_bboxes, ),
                                                     -1,
                                                     dtype=torch.long)
-            return AssignResult(num_gts,
-                                assigned_gt_inds,
-                                max_overlaps,
-                                labels=assigned_labels)
+            return AssignResult(
+                num_gts,
+                assigned_gt_inds,
+                max_overlaps,
+                labels=assigned_labels)
 
         # for each anchor, which gt best overlaps with it
         # for each anchor, the max iou of all gts
@@ -201,15 +202,13 @@ class MaxIoUAssigner(BaseAssigner):
 
         if gt_labels is not None:
             assigned_labels = assigned_gt_inds.new_full((num_bboxes, ), -1)
-            pos_inds = torch.nonzero(assigned_gt_inds > 0,
-                                     as_tuple=False).squeeze()
+            pos_inds = torch.nonzero(
+                assigned_gt_inds > 0, as_tuple=False).squeeze()
             if pos_inds.numel() > 0:
                 assigned_labels[pos_inds] = gt_labels[
                     assigned_gt_inds[pos_inds] - 1]
         else:
             assigned_labels = None
 
-        return AssignResult(num_gts,
-                            assigned_gt_inds,
-                            max_overlaps,
-                            labels=assigned_labels)
+        return AssignResult(
+            num_gts, assigned_gt_inds, max_overlaps, labels=assigned_labels)

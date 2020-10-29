@@ -1,6 +1,6 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import copy
-
 import numpy as np
 
 from vedacore.misc import registry
@@ -50,6 +50,7 @@ class AutoAugment(object):
         >>> results = dict(img=img, gt_bboxes=gt_bboxes)
         >>> results = augmentation(results)
     """
+
     def __init__(self, policies):
         assert isinstance(policies, list) and len(policies) > 0, \
             'Policies must be a non-empty list.'

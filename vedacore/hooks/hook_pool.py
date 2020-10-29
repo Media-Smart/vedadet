@@ -2,6 +2,7 @@ from .builder import build_hook
 
 
 class HookPool:
+
     def __init__(self, hooks, modes, logger):
         self.hooks = []
         self.modes = modes
@@ -13,7 +14,8 @@ class HookPool:
         if set(hook.modes) & set(self.modes):
             self.hooks.insert(-1, hook)
         else:
-            self.logger.warning(f'{hook.__class__.__name__} is not in modes {self.modes}')
+            self.logger.warning(
+                f'{hook.__class__.__name__} is not in modes {self.modes}')
 
     def register_hooks(self, hook_cfgs):
         for hook_cfg in hook_cfgs:

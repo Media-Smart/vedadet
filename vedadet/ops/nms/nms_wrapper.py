@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import numpy as np
 import torch
 
@@ -109,9 +110,9 @@ def soft_nms(dets, iou_thr, method='linear', sigma=0.5, min_score=1e-3):
     inds = results[:, 5]
 
     if is_tensor:
-        return new_dets.to(device=dets.device,
-                           dtype=dets.dtype), inds.to(device=dets.device,
-                                                      dtype=torch.long)
+        return new_dets.to(
+            device=dets.device, dtype=dets.dtype), inds.to(
+                device=dets.device, dtype=torch.long)
     else:
         return new_dets.numpy().astype(dets.dtype), inds.numpy().astype(
             np.int64)
@@ -151,8 +152,8 @@ def batched_nms(bboxes, scores, inds, nms_cfg, class_agnostic=False):
         bboxes_for_nms = bboxes + offsets[:, None]
     nms_type = nms_cfg_.pop('typename', 'nms')
     nms_op = eval(nms_type)
-    dets, keep = nms_op(torch.cat([bboxes_for_nms, scores[:, None]], -1),
-                        **nms_cfg_)
+    dets, keep = nms_op(
+        torch.cat([bboxes_for_nms, scores[:, None]], -1), **nms_cfg_)
     bboxes = bboxes[keep]
     scores = dets[:, -1]
     return torch.cat([bboxes, scores[:, None]], -1), keep

@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from vedacore.misc import registry
@@ -12,6 +13,7 @@ class OHEMSampler(BaseSampler):
     Object Detectors with Online Hard Example Mining
     <https://arxiv.org/abs/1604.03540>`_.
     """
+
     def __init__(self,
                  num,
                  pos_fraction,
@@ -35,15 +37,15 @@ class OHEMSampler(BaseSampler):
             bbox_feats = self.bbox_roi_extractor(
                 feats[:self.bbox_roi_extractor.num_inputs], rois)
             cls_score, _ = self.bbox_head(bbox_feats)
-            loss = self.bbox_head.loss(cls_score=cls_score,
-                                       bbox_pred=None,
-                                       rois=rois,
-                                       labels=labels,
-                                       label_weights=cls_score.new_ones(
-                                           cls_score.size(0)),
-                                       bbox_targets=None,
-                                       bbox_weights=None,
-                                       reduction_override='none')['loss_cls']
+            loss = self.bbox_head.loss(
+                cls_score=cls_score,
+                bbox_pred=None,
+                rois=rois,
+                labels=labels,
+                label_weights=cls_score.new_ones(cls_score.size(0)),
+                bbox_targets=None,
+                bbox_weights=None,
+                reduction_override='none')['loss_cls']
             _, topk_loss_inds = loss.topk(num_expected)
         return inds[topk_loss_inds]
 

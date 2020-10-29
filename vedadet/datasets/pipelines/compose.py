@@ -11,6 +11,7 @@ class Compose(object):
         transforms (Sequence[dict | callable]): Sequence of transform object or
             config dict to be composed.
     """
+
     def __init__(self, transforms):
         assert isinstance(transforms, collections.abc.Sequence)
         self.transforms = []

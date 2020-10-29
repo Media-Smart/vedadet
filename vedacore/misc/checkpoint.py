@@ -1,16 +1,15 @@
-import torch
-import pkgutil
-from importlib import import_module
 import os
 import os.path as osp
-from collections import OrderedDict
-
-from torch.utils import model_zoo
-from torch.optim import Optimizer
+import pkgutil
+import torch
 import torchvision
+from collections import OrderedDict
+from importlib import import_module
+from torch.optim import Optimizer
+from torch.utils import model_zoo
 
-from ..parallel import is_module_wrapper, get_dist_info
-from ..misc import mkdir_or_exist
+from ..parallel import get_dist_info, is_module_wrapper
+from .utils import mkdir_or_exist
 
 
 # adapted from https://github.com/open-mmlab/mmcv
@@ -175,7 +174,7 @@ def save_weights(model, filepath):
 def save_optimizer(optimizer, filepath):
     """Save checkpoint to file.
 
-    The checkpoint will have 2 fields: ``meta``, ``state_dict``. 
+    The checkpoint will have 2 fields: ``meta``, ``state_dict``.
     By default ``meta`` will epoch and iteration info.
 
     Args:
@@ -200,7 +199,8 @@ def save_optimizer(optimizer, filepath):
 def save_meta(meta, filepath):
     """Save checkpoint to file.
 
-    The checkpoint will have 2 fields: ``meta``, ``state_dict``. By default ``meta`` will epoch and iteration info.
+    The checkpoint will have 2 fields: ``meta``, ``state_dict``. By default
+    ``meta`` will epoch and iteration info.
 
     Args:
         optimizer (:obj:`Optimizer`): Optimizer to be saved.

@@ -46,10 +46,8 @@ def imresize(img,
             `resized_img`.
     """
     h, w = img.shape[:2]
-    resized_img = cv2.resize(img,
-                             size,
-                             dst=out,
-                             interpolation=interp_codes[interpolation])
+    resized_img = cv2.resize(
+        img, size, dst=out, interpolation=interp_codes[interpolation])
     if not return_scale:
         return resized_img
     else:
@@ -296,8 +294,9 @@ def imcrop(img, bboxes, scale=1.0, pad_fill=None):
                 patch_shape = (_y2 - _y1 + 1, _x2 - _x1 + 1)
             else:
                 patch_shape = (_y2 - _y1 + 1, _x2 - _x1 + 1, chn)
-            patch = np.array(pad_fill, dtype=img.dtype) * np.ones(
-                patch_shape, dtype=img.dtype)
+            patch = np.array(
+                pad_fill, dtype=img.dtype) * np.ones(
+                    patch_shape, dtype=img.dtype)
             x_start = 0 if _x1 >= 0 else -_x1
             y_start = 0 if _y1 >= 0 else -_y1
             w = x2 - x1 + 1

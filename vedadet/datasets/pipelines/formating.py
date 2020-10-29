@@ -1,9 +1,9 @@
-from collections.abc import Sequence
-
 import numpy as np
 import torch
-from vedacore.parallel import DataContainer as DC
+from collections.abc import Sequence
+
 from vedacore.misc import is_str, registry
+from vedacore.parallel import DataContainer as DC
 
 
 def to_tensor(data):
@@ -38,6 +38,7 @@ class ToTensor(object):
     Args:
         keys (Sequence[str]): Keys that need to be converted to Tensor.
     """
+
     def __init__(self, keys):
         self.keys = keys
 
@@ -70,6 +71,7 @@ class ImageToTensor(object):
     Args:
         keys (Sequence[str]): Key of images to be converted to Tensor.
     """
+
     def __init__(self, keys):
         self.keys = keys
 
@@ -103,6 +105,7 @@ class Transpose(object):
         keys (Sequence[str]): Keys of results to be transposed.
         order (Sequence[int]): Order of transpose.
     """
+
     def __init__(self, keys, order):
         self.keys = keys
         self.order = order
@@ -137,6 +140,7 @@ class ToDataContainer(object):
             Default: ``(dict(key='img', stack=True), dict(key='gt_bboxes'),
             dict(key='gt_labels'))``.
     """
+
     def __init__(self,
                  fields=(dict(key='img', stack=True), dict(key='gt_bboxes'),
                          dict(key='gt_labels'))):
@@ -169,7 +173,7 @@ class DefaultFormatBundle(object):
     """Default formatting bundle.
 
     It simplifies the pipeline of formatting common fields, including "img",
-    "proposals", "gt_bboxes", "gt_labels", "gt_masks" and "gt_semantic_seg".
+    "proposals", "gt_bboxes", "gt_labels".
     These fields are formatted as follows.
 
     - img: (1)transpose, (2)to tensor, (3)to DataContainer (stack=True)
@@ -177,10 +181,8 @@ class DefaultFormatBundle(object):
     - gt_bboxes: (1)to tensor, (2)to DataContainer
     - gt_bboxes_ignore: (1)to tensor, (2)to DataContainer
     - gt_labels: (1)to tensor, (2)to DataContainer
-    - gt_masks: (1)to tensor, (2)to DataContainer (cpu_only=True)
-    - gt_semantic_seg: (1)unsqueeze dim-0 (2)to tensor,
-                       (3)to DataContainer (stack=True)
     """
+
     def __call__(self, results):
         """Call function to transform and format common fields in results.
 
@@ -204,12 +206,6 @@ class DefaultFormatBundle(object):
             if key not in results:
                 continue
             results[key] = DC(to_tensor(results[key]))
-        if 'gt_masks' in results:
-            results['gt_masks'] = DC(results['gt_masks'], cpu_only=True)
-        if 'gt_semantic_seg' in results:
-            results['gt_semantic_seg'] = DC(to_tensor(
-                results['gt_semantic_seg'][None, ...]),
-                                            stack=True)
         return results
 
     def _add_default_meta_keys(self, results):
@@ -231,9 +227,10 @@ class DefaultFormatBundle(object):
         num_channels = 1 if len(img.shape) < 3 else img.shape[2]
         results.setdefault(
             'img_norm_cfg',
-            dict(mean=np.zeros(num_channels, dtype=np.float32),
-                 std=np.ones(num_channels, dtype=np.float32),
-                 to_rgb=False))
+            dict(
+                mean=np.zeros(num_channels, dtype=np.float32),
+                std=np.ones(num_channels, dtype=np.float32),
+                to_rgb=False))
         return results
 
     def __repr__(self):
@@ -246,7 +243,7 @@ class Collect(object):
 
     This is usually the last stage of the data loader pipeline. Typically keys
     is set to some subset of "img", "proposals", "gt_bboxes",
-    "gt_bboxes_ignore", "gt_labels", and/or "gt_masks".
+    "gt_bboxes_ignore", "gt_labels".
 
     The "img_meta" item is always populated.  The contents of the "img_meta"
     dictionary depends on "meta_keys". By default this includes:
@@ -278,6 +275,7 @@ class Collect(object):
             'pad_shape', 'scale_factor', 'flip', 'flip_direction',
             'img_norm_cfg')``
     """
+
     def __init__(self,
                  keys,
                  meta_keys=('filename', 'ori_filename', 'ori_shape',
@@ -333,6 +331,7 @@ class WrapFieldsToLists(object):
         >>>    dict(type='WrapIntoLists')
         >>> ]
     """
+
     def __call__(self, results):
         """Call function to wrap fields into lists.
 

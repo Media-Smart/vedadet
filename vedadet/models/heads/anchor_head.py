@@ -1,9 +1,9 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-import torch
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch.nn as nn
 
-from vedacore.modules import normal_init
 from vedacore.misc import multi_apply, registry
+from vedacore.modules import normal_init
 from .base_dense_head import BaseDenseHead
 
 

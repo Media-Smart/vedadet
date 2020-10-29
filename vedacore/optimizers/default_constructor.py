@@ -1,10 +1,9 @@
 # adapted from https://github.com/open-mmlab/mmcv
-import warnings
-
 import torch
+import warnings
 from torch.nn import GroupNorm, LayerNorm
-from torch.nn.modules.instancenorm import _InstanceNorm
 from torch.nn.modules.batchnorm import _BatchNorm
+from torch.nn.modules.instancenorm import _InstanceNorm
 
 from vedacore.misc import build_from_cfg, is_list_of, registry
 
@@ -73,6 +72,7 @@ class DefaultOptimizerConstructor:
         >>> # (0.01 * 0.1, 0.95 * 0.9). `lr` and `weight_decay` for
         >>> # model.cls_head is (0.01, 0.95).
     """
+
     def __init__(self, optimizer_cfg, paramwise_cfg=None):
         if not isinstance(optimizer_cfg, dict):
             raise TypeError('optimizer_cfg should be a dict',
@@ -141,8 +141,9 @@ class DefaultOptimizerConstructor:
         # special rules for norm layers and depth-wise conv layers
         is_norm = isinstance(module,
                              (_BatchNorm, _InstanceNorm, GroupNorm, LayerNorm))
-        is_dwconv = (isinstance(module, torch.nn.Conv2d)
-                     and module.in_channels == module.groups)
+        is_dwconv = (
+            isinstance(module, torch.nn.Conv2d)
+            and module.in_channels == module.groups)
 
         for name, param in module.named_parameters(recurse=False):
             param_group = {'params': [param]}

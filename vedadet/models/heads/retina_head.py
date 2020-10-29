@@ -1,9 +1,9 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch.nn as nn
 
-from vedacore.modules import ConvModule, bias_init_with_prob, normal_init
 from vedacore.misc import registry
-
+from vedacore.modules import ConvModule, bias_init_with_prob, normal_init
 from .anchor_head import AnchorHead
 
 
@@ -26,6 +26,7 @@ class RetinaHead(AnchorHead):
         >>> assert cls_per_anchor == (self.num_classes)
         >>> assert box_per_anchor == 4
     """
+
     def __init__(self,
                  num_classes,
                  num_anchors,
@@ -48,35 +49,36 @@ class RetinaHead(AnchorHead):
         for i in range(self.stacked_convs):
             chn = self.in_channels if i == 0 else self.feat_channels
             self.cls_convs.append(
-                ConvModule(chn,
-                           self.feat_channels,
-                           3,
-                           stride=1,
-                           padding=1,
-                           conv_cfg=self.conv_cfg,
-                           norm_cfg=self.norm_cfg))
+                ConvModule(
+                    chn,
+                    self.feat_channels,
+                    3,
+                    stride=1,
+                    padding=1,
+                    conv_cfg=self.conv_cfg,
+                    norm_cfg=self.norm_cfg))
             self.reg_convs.append(
-                ConvModule(chn,
-                           self.feat_channels,
-                           3,
-                           stride=1,
-                           padding=1,
-                           conv_cfg=self.conv_cfg,
-                           norm_cfg=self.norm_cfg))
-        self.retina_cls = nn.Conv2d(self.feat_channels,
-                                    self.num_anchors * self.cls_out_channels,
-                                    3,
-                                    padding=1)
-        self.retina_reg = nn.Conv2d(self.feat_channels,
-                                    self.num_anchors * 4,
-                                    3,
-                                    padding=1)
+                ConvModule(
+                    chn,
+                    self.feat_channels,
+                    3,
+                    stride=1,
+                    padding=1,
+                    conv_cfg=self.conv_cfg,
+                    norm_cfg=self.norm_cfg))
+        self.retina_cls = nn.Conv2d(
+            self.feat_channels,
+            self.num_anchors * self.cls_out_channels,
+            3,
+            padding=1)
+        self.retina_reg = nn.Conv2d(
+            self.feat_channels, self.num_anchors * 4, 3, padding=1)
 
     def init_weights(self):
         """Initialize weights of the head."""
-        #print('set random seed for head')
-        #from vedacore.misc import set_random_seed
-        #set_random_seed(0, True)
+        # print('set random seed for head')
+        # from vedacore.misc import set_random_seed
+        # set_random_seed(0, True)
         for m in self.cls_convs:
             normal_init(m.conv, std=0.01)
         for m in self.reg_convs:

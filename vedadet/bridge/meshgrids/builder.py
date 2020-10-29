@@ -1,5 +1,4 @@
-import json
-from vedacore.misc import registry, build_from_cfg, singleton_arg
+from vedacore.misc import build_from_cfg, registry, singleton_arg
 
 
 @singleton_arg

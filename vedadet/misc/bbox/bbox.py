@@ -1,6 +1,7 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-import torch
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import numpy as np
+import torch
 
 from vedadet.ops import batched_nms
 
@@ -62,12 +63,12 @@ def bbox_overlaps(bboxes1, bboxes2, mode='iou', is_aligned=False, eps=1e-6):
 
         wh = (rb - lt).clamp(min=0)  # [rows, 2]
         overlap = wh[:, 0] * wh[:, 1]
-        area1 = (bboxes1[:, 2] - bboxes1[:, 0]) * (bboxes1[:, 3] -
-                                                   bboxes1[:, 1])
+        area1 = (bboxes1[:, 2] - bboxes1[:, 0]) * (
+            bboxes1[:, 3] - bboxes1[:, 1])
 
         if mode == 'iou':
-            area2 = (bboxes2[:, 2] - bboxes2[:, 0]) * (bboxes2[:, 3] -
-                                                       bboxes2[:, 1])
+            area2 = (bboxes2[:, 2] - bboxes2[:, 0]) * (
+                bboxes2[:, 3] - bboxes2[:, 1])
             union = area1 + area2 - overlap
         else:
             union = area1
@@ -77,12 +78,12 @@ def bbox_overlaps(bboxes1, bboxes2, mode='iou', is_aligned=False, eps=1e-6):
 
         wh = (rb - lt).clamp(min=0)  # [rows, cols, 2]
         overlap = wh[:, :, 0] * wh[:, :, 1]
-        area1 = (bboxes1[:, 2] - bboxes1[:, 0]) * (bboxes1[:, 3] -
-                                                   bboxes1[:, 1])
+        area1 = (bboxes1[:, 2] - bboxes1[:, 0]) * (
+            bboxes1[:, 3] - bboxes1[:, 1])
 
         if mode == 'iou':
-            area2 = (bboxes2[:, 2] - bboxes2[:, 0]) * (bboxes2[:, 3] -
-                                                       bboxes2[:, 1])
+            area2 = (bboxes2[:, 2] - bboxes2[:, 0]) * (
+                bboxes2[:, 3] - bboxes2[:, 1])
             union = area1[:, None] + area2 - overlap
         else:
             union = area1[:, None]

@@ -65,6 +65,7 @@ class Registry:
         dd[cls_name] = cls
 
     def register_module(self, module_name='module'):
+
         def _register(cls):
             self._register_module(cls, module_name)
             return cls

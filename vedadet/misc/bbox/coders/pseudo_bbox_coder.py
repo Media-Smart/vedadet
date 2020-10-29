@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 from vedacore.misc import registry
 from .base_bbox_coder import BaseBBoxCoder
 
@@ -6,6 +7,7 @@ from .base_bbox_coder import BaseBBoxCoder
 @registry.register_module('bbox_coder')
 class PseudoBBoxCoder(BaseBBoxCoder):
     """Pseudo bounding box coder."""
+
     def __init__(self, **kwargs):
         super(BaseBBoxCoder, self).__init__(**kwargs)
 

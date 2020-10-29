@@ -1,11 +1,10 @@
 # 1. data
 dataset_type = 'CocoDataset'
 data_root = '/media/data/datasets/COCO2017/'
-#img_norm_cfg = dict(mean=[102.9801, 115.9465, 122.7717],
-#                    std=[1.0, 1.0, 1.0],
-#                    to_rgb=False)
 img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True)
 size_divisor = 32
 
 data = dict(
@@ -23,16 +22,17 @@ data = dict(
             dict(typename='Normalize', **img_norm_cfg),
             dict(typename='Pad', size_divisor=size_divisor),
             dict(typename='DefaultFormatBundle'),
-            dict(typename='Collect', keys=['img', 'gt_bboxes',
-                'gt_labels']),
-       ]),
+            dict(
+                typename='Collect',
+                keys=['img', 'gt_bboxes', 'gt_labels'])]),
     val=dict(
         typename=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
         img_prefix=data_root + 'val2017/',
         pipeline=[
             dict(typename='LoadImageFromFile'),
-            dict(typename='MultiScaleFlipAug',
+            dict(
+                typename='MultiScaleFlipAug',
                 img_scale=(1333, 800),
                 flip=False,
                 transforms=[
@@ -50,8 +50,8 @@ data = dict(
 # 2. model
 num_classes = 80
 strides = [8, 16, 32, 64, 128]
-regress_ranges = ((-1, 64), (64, 128), (128, 256), 
-        (256, 512), (512, 10000))
+regress_ranges = ((-1, 64), (64, 128), (128, 256),
+                  (256, 512), (512, 10000))
 
 detector = dict(
     typename='SingleStageDetector',
@@ -62,7 +62,7 @@ detector = dict(
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
         norm_cfg=dict(
-            typename='BN', 
+            typename='BN',
             requires_grad=True),
         norm_eval=True,
         style='pytorch'),
@@ -75,13 +75,14 @@ detector = dict(
         extra_convs_on_inputs=False,  # use P5
         num_outs=5,
         relu_before_extra_convs=True),
-    head=dict(typename='FCOSHead',
-                  num_classes=num_classes,
-                  in_channels=256,
-                  stacked_convs=4,
-                  feat_channels=256,
-                  strides=strides,
-                  norm_cfg=None))
+    head=dict(
+        typename='FCOSHead',
+        num_classes=num_classes,
+        in_channels=256,
+        stacked_convs=4,
+        feat_channels=256,
+        strides=strides,
+        norm_cfg=None))
 
 # 3. engines
 meshgrid = dict(
@@ -106,7 +107,7 @@ train_engine = dict(
             alpha=0.25,
             loss_weight=1.0),
         loss_bbox=dict(
-            typename='IoULoss', 
+            typename='IoULoss',
             loss_weight=1.0),
         loss_centerness=dict(
             typename='CrossEntropyLoss',
@@ -125,15 +126,16 @@ val_engine = dict(
     typename='ValEngine',
     detector=detector,
     meshgrid=meshgrid,
-    converter = dict(typename='PointAnchorConverter',
-            cls_out_channels=num_classes,
-            test_cfg = dict(
-                nms_pre=1000,
-                min_bbox_size=0,
-                score_thr=0.05,
-                nms=dict(typename='nms', iou_thr=0.5),
-                max_per_img=100),
-            rescale=True),
+    converter=dict(
+        typename='PointAnchorConverter',
+        cls_out_channels=num_classes,
+        test_cfg=dict(
+            nms_pre=1000,
+            min_bbox_size=0,
+            score_thr=0.05,
+            nms=dict(typename='nms', iou_thr=0.5),
+            max_per_img=100),
+        rescale=True),
     eval_metric=None)
 
 # 4. hooks
@@ -154,8 +156,7 @@ hooks = [
             interval=1),
         dict(
             typename='LoggerHook',
-            interval=dict(train=10,
-                val=20)),
+            interval=1),
         dict(typename='EvalHook'),
         ]
 
@@ -165,9 +166,10 @@ max_epochs = 12
 
 # 6. misc
 weights = dict(filepath='/media/data/home/yichaoxiong/packages/weights/resnet50-19c8e357.pth',
-        prefix='backbone')
-#optimizer = dict(filepath='workdir/retinanet_mini/epoch_3_optim.pth')
-#meta = dict(filepath='workdir/retinanet_mini/epoch_3_meta.pth')
+       prefix='backbone')
+# weights = dict(filepath='workdir/fcos/epoch_12_weights.pth')
+# optimizer = dict(filepath='workdir/fcos/epoch_1_optim.pth')
+# meta = dict(filepath='workdir/fcos/epoch_1_meta.pth')
 
 # 7. misc
 seed = 0

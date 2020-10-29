@@ -1,9 +1,9 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import bisect
 import math
-from collections import defaultdict
-
 import numpy as np
+from collections import defaultdict
 from torch.utils.data.dataset import ConcatDataset as _ConcatDataset
 
 from vedacore.misc import registry
@@ -19,6 +19,7 @@ class ConcatDataset(_ConcatDataset):
     Args:
         datasets (list[:obj:`Dataset`]): A list of datasets.
     """
+
     def __init__(self, datasets):
         super(ConcatDataset, self).__init__(datasets)
         self.CLASSES = datasets[0].CLASSES
@@ -64,6 +65,7 @@ class RepeatDataset(object):
         dataset (:obj:`Dataset`): The dataset to be repeated.
         times (int): Repeat times.
     """
+
     def __init__(self, dataset, times):
         self.dataset = dataset
         self.times = times
@@ -126,6 +128,7 @@ class ClassBalancedDataset(object):
             degree of oversampling following the square-root inverse frequency
             heuristic above.
     """
+
     def __init__(self, dataset, oversample_thr):
         self.dataset = dataset
         self.oversample_thr = oversample_thr

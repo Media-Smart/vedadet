@@ -1,16 +1,13 @@
-import torch.nn as nn
 import torch
 
 from vedacore.misc import registry
-
-from ..builder import build_backbone
-from ..builder import build_neck
-from ..builder import build_head
+from ..builder import build_backbone, build_head, build_neck
 from .base_detector import BaseDetector
 
 
 @registry.register_module('detector')
 class SingleStageDetector(BaseDetector):
+
     def __init__(self, backbone, head, neck=None):
         super().__init__()
         self.backbone = build_backbone(backbone)
@@ -36,8 +33,6 @@ class SingleStageDetector(BaseDetector):
         return feats
 
     def forward(self, x, train=True):
-        #import random, torch, numpy
-        #print('random, ', random.random(), torch.rand(1), numpy.random.rand())
         if train:
             self.train()
             feats = self.forward_impl(x)

@@ -19,6 +19,7 @@ class LrSchedulerHook(BaseHook):
             means the number of epochs that warmup lasts, otherwise means the
             number of iteration that warmup lasts
     """
+
     def __init__(self,
                  by_epoch=True,
                  warmup=None,
@@ -147,6 +148,7 @@ class LrSchedulerHook(BaseHook):
 
 @registry.register_module('hook')
 class FixedLrSchedulerHook(LrSchedulerHook):
+
     def __init__(self, **kwargs):
         super(FixedLrSchedulerHook, self).__init__(**kwargs)
 
@@ -156,6 +158,7 @@ class FixedLrSchedulerHook(LrSchedulerHook):
 
 @registry.register_module('hook')
 class StepLrSchedulerHook(LrSchedulerHook):
+
     def __init__(self, step, gamma=0.1, **kwargs):
         assert isinstance(step, (list, int))
         if isinstance(step, list):
@@ -185,6 +188,7 @@ class StepLrSchedulerHook(LrSchedulerHook):
 
 @registry.register_module('hook')
 class ExpLrSchedulerHook(LrSchedulerHook):
+
     def __init__(self, gamma, **kwargs):
         self.gamma = gamma
         super(ExpLrSchedulerHook, self).__init__(**kwargs)
@@ -196,6 +200,7 @@ class ExpLrSchedulerHook(LrSchedulerHook):
 
 @registry.register_module('hook')
 class PolyLrSchedulerHook(LrSchedulerHook):
+
     def __init__(self, power=1., min_lr=0., **kwargs):
         self.power = power
         self.min_lr = min_lr
@@ -214,6 +219,7 @@ class PolyLrSchedulerHook(LrSchedulerHook):
 
 @registry.register_module('hook')
 class InvLrSchedulerHook(LrSchedulerHook):
+
     def __init__(self, gamma, power=1., **kwargs):
         self.gamma = gamma
         self.power = power
@@ -226,6 +232,7 @@ class InvLrSchedulerHook(LrSchedulerHook):
 
 @registry.register_module('hook')
 class CosineAnnealingLrSchedulerHook(LrSchedulerHook):
+
     def __init__(self, min_lr=None, min_lr_ratio=None, **kwargs):
         assert (min_lr is None) ^ (min_lr_ratio is None)
         self.min_lr = min_lr
@@ -259,6 +266,7 @@ class CosineRestartLrSchedulerHook(LrSchedulerHook):
             Either `min_lr` or `min_lr_ratio` should be specified.
             Default: None.
     """
+
     def __init__(self,
                  periods,
                  restart_weights=[1],
@@ -334,6 +342,7 @@ class CyclicLrSchedulerHook(LrSchedulerHook):
             the total cycle.
         by_epoch (bool): Whether to update LR by epoch.
     """
+
     def __init__(self,
                  by_epoch=False,
                  target_ratio=(10, 1e-4),

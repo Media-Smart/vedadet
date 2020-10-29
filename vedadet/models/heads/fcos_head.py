@@ -1,11 +1,10 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-import torch
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch.nn as nn
 import torch.nn.functional as F
 
-from vedacore.modules import Scale, normal_init
 from vedacore.misc import multi_apply, registry
-
+from vedacore.modules import Scale, normal_init
 from .anchor_free_head import AnchorFreeHead
 
 INF = 1e8

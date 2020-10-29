@@ -1,5 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
-import torch
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 from collections import OrderedDict
 
 from vedacore.misc import registry
@@ -8,7 +8,8 @@ from .base_hook import BaseHook
 
 @registry.register_module('hook')
 class LoggerHook(BaseHook):
-    def __init__(self, interval=dict(train=1, val=1), by_epoch=True):
+
+    def __init__(self, interval=1, by_epoch=True):
         self.interval = interval
         self.by_epoch = by_epoch
 
@@ -25,8 +26,8 @@ class LoggerHook(BaseHook):
             # by epoch: Epoch [4][100/1000]
             # by iter:  Iter [100/100000]
             if self.by_epoch:
-                log_str = f'Epoch [{log_dict["epoch"]}]' \
-                          f'[{log_dict["iter"]}/{len(looper.train_dataloader)}] {lr_str}, '
+                log_str = f'Epoch [{log_dict["epoch"]}][{log_dict["iter"]}' \
+                          f'/{len(looper.train_dataloader)}] {lr_str}, '
         log_items = []
         for name, val in log_dict.items():
             # TODO: resolve this hack
@@ -64,7 +65,7 @@ class LoggerHook(BaseHook):
         results = looper.cur_train_results
         log_dict = dict(log_dict, **results['log_vars'])
 
-        if self.every_n_inner_iters(looper, self.interval['train']):
+        if self.every_n_inner_iters(looper, self.interval):
             self._train_log_info(log_dict, looper)
 
     def _val_log_info(self, log_dict, looper):
@@ -81,7 +82,7 @@ class LoggerHook(BaseHook):
         log_dict['mode'] = looper.mode
         log_dict['iter'] = looper.inner_iter
 
-        if self.every_n_inner_iters(looper, self.interval['val']):
+        if self.every_n_inner_iters(looper, self.interval):
             self._val_log_info(log_dict, looper)
 
     @property

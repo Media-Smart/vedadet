@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from vedacore.misc import registry
@@ -16,6 +17,7 @@ class PointAssigner(BaseAssigner):
     - 0: negative sample, no assigned gt
     - positive integer: positive sample, index (1-based) of assigned gt
     """
+
     def __init__(self, scale=4, pos_num=3):
         self.scale = scale
         self.pos_num = pos_num
@@ -61,10 +63,8 @@ class PointAssigner(BaseAssigner):
                 assigned_labels = points.new_full((num_points, ),
                                                   -1,
                                                   dtype=torch.long)
-            return AssignResult(num_gts,
-                                assigned_gt_inds,
-                                None,
-                                labels=assigned_labels)
+            return AssignResult(
+                num_gts, assigned_gt_inds, None, labels=assigned_labels)
 
         points_xy = points[:, :2]
         points_stride = points[:, 2]
@@ -101,9 +101,8 @@ class PointAssigner(BaseAssigner):
             #   all points in this level
             points_gt_dist = ((lvl_points - gt_point) / gt_wh).norm(dim=1)
             # find the nearest k points to gt center in this level
-            min_dist, min_dist_index = torch.topk(points_gt_dist,
-                                                  self.pos_num,
-                                                  largest=False)
+            min_dist, min_dist_index = torch.topk(
+                points_gt_dist, self.pos_num, largest=False)
             # the index of nearest k points to gt center in this level
             min_dist_points_index = points_index[min_dist_index]
             # The less_than_recorded_index stores the index
@@ -124,15 +123,13 @@ class PointAssigner(BaseAssigner):
 
         if gt_labels is not None:
             assigned_labels = assigned_gt_inds.new_full((num_points, ), -1)
-            pos_inds = torch.nonzero(assigned_gt_inds > 0,
-                                     as_tuple=False).squeeze()
+            pos_inds = torch.nonzero(
+                assigned_gt_inds > 0, as_tuple=False).squeeze()
             if pos_inds.numel() > 0:
                 assigned_labels[pos_inds] = gt_labels[
                     assigned_gt_inds[pos_inds] - 1]
         else:
             assigned_labels = None
 
-        return AssignResult(num_gts,
-                            assigned_gt_inds,
-                            None,
-                            labels=assigned_labels)
+        return AssignResult(
+            num_gts, assigned_gt_inds, None, labels=assigned_labels)

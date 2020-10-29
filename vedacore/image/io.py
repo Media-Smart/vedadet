@@ -1,11 +1,10 @@
 # Copyright (c) Open-MMLab. All rights reserved.
-import io
-import os.path as osp
-from pathlib import Path
-
 import cv2
+import io
 import numpy as np
+import os.path as osp
 from cv2 import IMREAD_COLOR, IMREAD_GRAYSCALE, IMREAD_UNCHANGED
+from pathlib import Path
 
 from vedacore.misc import check_file_exist, is_str, mkdir_or_exist
 

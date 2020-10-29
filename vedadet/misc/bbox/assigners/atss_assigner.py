@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 
 from vedacore.misc import registry
@@ -20,6 +21,7 @@ class ATSSAssigner(BaseAssigner):
     Args:
         topk (float): number of bbox selected in each level
     """
+
     def __init__(self,
                  topk,
                  iou_calculator=dict(type='BboxOverlaps2D'),
@@ -87,10 +89,8 @@ class ATSSAssigner(BaseAssigner):
                 assigned_labels = overlaps.new_full((num_bboxes, ),
                                                     -1,
                                                     dtype=torch.long)
-            return AssignResult(num_gt,
-                                assigned_gt_inds,
-                                max_overlaps,
-                                labels=assigned_labels)
+            return AssignResult(
+                num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
 
         # compute center distance between all bbox and gt
         gt_cx = (gt_bboxes[:, 0] + gt_bboxes[:, 2]) / 2.0
@@ -106,9 +106,8 @@ class ATSSAssigner(BaseAssigner):
 
         if (self.ignore_iof_thr > 0 and gt_bboxes_ignore is not None
                 and gt_bboxes_ignore.numel() > 0 and bboxes.numel() > 0):
-            ignore_overlaps = self.iou_calculator(bboxes,
-                                                  gt_bboxes_ignore,
-                                                  mode='iof')
+            ignore_overlaps = self.iou_calculator(
+                bboxes, gt_bboxes_ignore, mode='iof')
             ignore_max_overlaps, _ = ignore_overlaps.max(dim=1)
             ignore_idxs = ignore_max_overlaps > self.ignore_iof_thr
             distances[ignore_idxs, :] = INF
@@ -122,9 +121,8 @@ class ATSSAssigner(BaseAssigner):
             # select k bbox whose center are closest to the gt center
             end_idx = start_idx + bboxes_per_level
             distances_per_level = distances[start_idx:end_idx, :]
-            _, topk_idxs_per_level = distances_per_level.topk(self.topk,
-                                                              dim=0,
-                                                              largest=False)
+            _, topk_idxs_per_level = distances_per_level.topk(
+                self.topk, dim=0, largest=False)
             candidate_idxs.append(topk_idxs_per_level + start_idx)
             start_idx = end_idx
         candidate_idxs = torch.cat(candidate_idxs, dim=0)
@@ -170,14 +168,12 @@ class ATSSAssigner(BaseAssigner):
 
         if gt_labels is not None:
             assigned_labels = assigned_gt_inds.new_full((num_bboxes, ), -1)
-            pos_inds = torch.nonzero(assigned_gt_inds > 0,
-                                     as_tuple=False).squeeze()
+            pos_inds = torch.nonzero(
+                assigned_gt_inds > 0, as_tuple=False).squeeze()
             if pos_inds.numel() > 0:
                 assigned_labels[pos_inds] = gt_labels[
                     assigned_gt_inds[pos_inds] - 1]
         else:
             assigned_labels = None
-        return AssignResult(num_gt,
-                            assigned_gt_inds,
-                            max_overlaps,
-                            labels=assigned_labels)
+        return AssignResult(
+            num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)

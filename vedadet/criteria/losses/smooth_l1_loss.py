@@ -1,4 +1,5 @@
-# adapted from https://github.com/open-mmlab/mmcv or https://github.com/open-mmlab/mmdetection
+# adapted from https://github.com/open-mmlab/mmcv or
+# https://github.com/open-mmlab/mmdetection
 import torch
 import torch.nn as nn
 
@@ -54,6 +55,7 @@ class SmoothL1Loss(nn.Module):
             Options are "none", "mean" and "sum". Defaults to "mean".
         loss_weight (float, optional): The weight of loss.
     """
+
     def __init__(self, beta=1.0, reduction='mean', loss_weight=1.0):
         super(SmoothL1Loss, self).__init__()
         self.beta = beta
@@ -81,15 +83,16 @@ class SmoothL1Loss(nn.Module):
                 Defaults to None.
         """
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (reduction_override
-                     if reduction_override else self.reduction)
-        loss_bbox = self.loss_weight * smooth_l1_loss(pred,
-                                                      target,
-                                                      weight,
-                                                      beta=self.beta,
-                                                      reduction=reduction,
-                                                      avg_factor=avg_factor,
-                                                      **kwargs)
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
+        loss_bbox = self.loss_weight * smooth_l1_loss(
+            pred,
+            target,
+            weight,
+            beta=self.beta,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            **kwargs)
         return loss_bbox
 
 
@@ -102,6 +105,7 @@ class L1Loss(nn.Module):
             Options are "none", "mean" and "sum".
         loss_weight (float, optional): The weight of loss.
     """
+
     def __init__(self, reduction='mean', loss_weight=1.0):
         super(L1Loss, self).__init__()
         self.reduction = reduction
@@ -127,8 +131,8 @@ class L1Loss(nn.Module):
                 Defaults to None.
         """
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (reduction_override
-                     if reduction_override else self.reduction)
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
         loss_bbox = self.loss_weight * l1_loss(
             pred, target, weight, reduction=reduction, avg_factor=avg_factor)
         return loss_bbox

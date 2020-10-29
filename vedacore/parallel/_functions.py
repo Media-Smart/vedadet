@@ -58,6 +58,7 @@ def get_input_device(input):
 
 
 class Scatter:
+
     @staticmethod
     def forward(target_gpus, input):
         input_device = get_input_device(input)
