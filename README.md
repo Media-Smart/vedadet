@@ -40,20 +40,20 @@ We have tested the following versions of OS and softwares:
 
 ### Install vedadet
 
-1. Create a conda virtual environment and activate it.
+a. Create a conda virtual environment and activate it.
 
 ```shell
 conda create -n vedadet python=3.8.5 -y
 conda activate vedadet
 ```
 
-2. Install PyTorch and torchvision following the [official instructions](https://pytorch.org/), *e.g.*,
+b. Install PyTorch and torchvision following the [official instructions](https://pytorch.org/), *e.g.*,
 
 ```shell
 conda install pytorch torchvision -c pytorch
 ```
 
-3. Clone the vedadet repository.
+c. Clone the vedadet repository.
 
 ```shell
 git clone https://github.com/Media-Smart/vedadet.git
@@ -61,7 +61,7 @@ cd vedadet
 vedadet_root=${PWD}
 ```
 
-4. Install vedadet.
+d. Install vedadet.
 
 ```shell
 pip install -r requirements/build.txt
@@ -70,26 +70,26 @@ pip install -v -e .
 
 ## Train
 
-1. Config
+a. Config
 
 Modify some configuration accordingly in the config file like `configs/trainval/retinanet.py`
 
-2. Multi-GPUs training
+b. Multi-GPUs training
 ```shell
 tools/dist_train.sh configs/trainval/retinanet.py "0,1"
 ```
 
-3. Single GPU training
+c. Single GPU training
 ```shell
 python tools/trainval.py configs/trainval/retinanet.py
 ```
 
 ## Test
 
-1. Config
+a. Config
 Modify some configuration accordingly in the config file like `configs/trainval/retinanet.py`
 
-2. Test
+b. Test
 ```shell
 python tools/trainval.py configs/trainval/retinanet.py
 ```
@@ -98,18 +98,19 @@ Snapshots and logs will be generated at `${vedadet_root}/workdir`.
 
 ## Inference
 
-1. Config
+a. Config
 Modify some configuration accordingly in the config file like `configs/trainval/retinanet.py`
 
-2. Inference
+b. Inference
 ```shell
 python tools/test.py configs/infer/retinanet.py
 ```
 
 ## Deploy
+a. Convert to TensorRT engine
 To be done.
 
-2. Inference SDK
+b. Inference SDK
 To be done.
 
 ## Contact
