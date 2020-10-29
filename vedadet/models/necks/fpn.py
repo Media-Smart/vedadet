@@ -185,6 +185,8 @@ class FPN(nn.Module):
                                                  **self.upsample_cfg)
             else:
                 prev_shape = laterals[i - 1].shape[2:]
+                # This is a workaround when converting PyTorch model to ONNX model
+                prev_shape = tuple(map(lambda x: int(x), prev_shape))
                 laterals[i - 1] += F.interpolate(
                     laterals[i], size=prev_shape, **self.upsample_cfg)
 
