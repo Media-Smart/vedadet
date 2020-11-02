@@ -94,7 +94,7 @@ b. Test
 python tools/trainval.py configs/trainval/retinanet.py
 ```
 
-Snapshots and logs will be generated at `${vedadet_root}/workdir`.
+Logs will be generated at `${vedadet_root}/workdir`.
 
 ## Inference
 
@@ -105,7 +105,7 @@ Modify some configuration accordingly in the config file like `configs/trainval/
 b. Inference
 
 ```shell
-python tools/test.py configs/infer/retinanet.py
+python tools/test.py configs/infer/retinanet.py image_path
 ```
 
 ## Deploy
