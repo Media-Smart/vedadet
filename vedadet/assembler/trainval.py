@@ -42,7 +42,7 @@ def trainval(cfg, distributed, logger):
 
         dataloaders['val'] = build_dataloader(
             dataset,
-            1,  # cfg.data.samples_per_gpu,
+            cfg.data.samples_per_gpu,
             cfg.data.workers_per_gpu,
             dist=distributed,
             shuffle=False)

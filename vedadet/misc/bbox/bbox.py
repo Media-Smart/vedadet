@@ -128,10 +128,12 @@ def multiclass_nms(multi_bboxes,
     scores = multi_scores[:, :-1]
 
     # filter out boxes with low scores
-    valid_mask = scores > score_thr
-    bboxes = bboxes[valid_mask]
     if score_factors is not None:
         scores = scores * score_factors[:, None]
+    valid_mask = scores > score_thr
+    bboxes = bboxes[valid_mask]
+    #if score_factors is not None:
+    #    scores = scores * score_factors[:, None]
     scores = scores[valid_mask]
     labels = valid_mask.nonzero(as_tuple=False)[:, 1]
 
@@ -232,3 +234,42 @@ def bbox2result(bboxes, labels, num_classes):
         bboxes = bboxes.cpu().numpy()
         labels = labels.cpu().numpy()
         return [bboxes[labels == i, :] for i in range(num_classes)]
+
+
+def bbox_flip(bboxes, img_shape, direction='horizontal'):
+    """Flip bboxes horizontally or vertically.
+    Args:
+        bboxes (Tensor): Shape (..., 4*k)
+        img_shape (tuple): Image shape.
+        direction (str): Flip direction, options are "horizontal", "vertical",
+            "diagonal". Default: "horizontal"
+    Returns:
+        Tensor: Flipped bboxes.
+    """
+    assert bboxes.shape[-1] % 4 == 0
+    assert direction in ['horizontal', 'vertical', 'diagonal']
+    flipped = bboxes.clone()
+    if direction == 'horizontal':
+        flipped[..., 0::4] = img_shape[1] - bboxes[..., 2::4]
+        flipped[..., 2::4] = img_shape[1] - bboxes[..., 0::4]
+    elif direction == 'vertical':
+        flipped[..., 1::4] = img_shape[0] - bboxes[..., 3::4]
+        flipped[..., 3::4] = img_shape[0] - bboxes[..., 1::4]
+    else:
+        flipped[..., 0::4] = img_shape[1] - bboxes[..., 2::4]
+        flipped[..., 1::4] = img_shape[0] - bboxes[..., 3::4]
+        flipped[..., 2::4] = img_shape[1] - bboxes[..., 0::4]
+        flipped[..., 3::4] = img_shape[0] - bboxes[..., 1::4]
+    return flipped
+
+
+def bbox_revert(bboxes,
+                img_shape,
+                scale_factor,
+                flip,
+                flip_direction='horizontal'):
+    """Map bboxes from testing scale to original image scale."""
+    new_bboxes = bbox_flip(bboxes, img_shape,
+                           flip_direction) if flip else bboxes
+    new_bboxes = new_bboxes.view(-1, 4) / new_bboxes.new_tensor(scale_factor)
+    return new_bboxes.view(bboxes.shape)

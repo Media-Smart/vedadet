@@ -1,7 +1,7 @@
 import torch
 
 from vedacore.misc import registry
-from vedadet.misc.bbox import bbox2result, distance2bbox, multiclass_nms
+from vedadet.misc.bbox import bbox_revert, distance2bbox
 from .base_converter import BaseConverter
 
 INF = 1e8
@@ -10,11 +10,12 @@ INF = 1e8
 @registry.register_module('converter')
 class PointAnchorConverter(BaseConverter):
 
-    def __init__(self, cls_out_channels, test_cfg, rescale=False):
+    def __init__(self, num_classes, nms_pre, revert=True, use_sigmoid=True):
         super().__init__()
-        self.test_cfg = test_cfg
-        self.rescale = rescale
-        self.cls_out_channels = cls_out_channels
+        assert use_sigmoid == True
+        self.nms_pre = nms_pre
+        self.revert = revert
+        self.cls_out_channels = num_classes
 
     def get_bboxes(
         self,
@@ -37,9 +38,6 @@ class PointAnchorConverter(BaseConverter):
                 shape (N, num_points * 1, H, W)
             img_metas (list[dict]): Meta information of each image, e.g.,
                 image size, scaling factor, etc.
-            cfg (Config): Test / postprocessing configuration,
-                if None, test_cfg would be used
-            rescale (bool): If True, return boxes in original image space
         Returns:
             list[tuple[Tensor, Tensor]]: Each item in result_list is 2-tuple. \
                 The first item is an (n, 5) tensor, where the first 4 columns \
@@ -51,9 +49,6 @@ class PointAnchorConverter(BaseConverter):
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
 
-        # featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
-        # mlvl_points = self.get_points(featmap_sizes, bbox_preds[0].dtype,
-        #                              bbox_preds[0].device)
         result_list = []
         for img_id in range(len(img_metas)):
             cls_score_list = [
@@ -65,15 +60,11 @@ class PointAnchorConverter(BaseConverter):
             centerness_pred_list = [
                 centernesses[i][img_id].detach() for i in range(num_levels)
             ]
-            img_shape = img_metas[img_id]['img_shape']
-            scale_factor = img_metas[img_id]['scale_factor']
-            det_bboxes = self._get_bboxes_single(cls_score_list,
-                                                 bbox_pred_list,
-                                                 centerness_pred_list,
-                                                 mlvl_points, img_shape,
-                                                 scale_factor, self.test_cfg,
-                                                 self.rescale)
-            result_list.append(det_bboxes)
+            result = self._get_bboxes_single(cls_score_list, bbox_pred_list,
+                                             centerness_pred_list, mlvl_points,
+                                             img_metas[img_id], self.nms_pre,
+                                             self.revert)
+            result_list.append(result)
         return result_list
 
     def _get_bboxes_single(self,
@@ -81,10 +72,9 @@ class PointAnchorConverter(BaseConverter):
                            bbox_preds,
                            centernesses,
                            mlvl_points,
-                           img_shape,
-                           scale_factor,
-                           test_cfg,
-                           rescale=False):
+                           img_metas,
+                           nms_pre,
+                           revert=True):
         """Transform outputs for a single batch item into bbox predictions.
 
         Aapted from https://github.com/open-mmlab/mmdetection
@@ -98,19 +88,17 @@ class PointAnchorConverter(BaseConverter):
                 with shape (num_points * 4, H, W).
             mlvl_points (list[Tensor]): Box reference for a single scale level
                 with shape (num_total_points, 4).
-            img_shape (tuple[int]): Shape of the input image,
-                (height, width, 3).
-            scale_factor (ndarray): Scale factor of the image arrange as
-                (w_scale, h_scale, w_scale, h_scale).
             cfg (Config): Test / postprocessing configuration,
                 if None, test_cfg would be used.
-            rescale (bool): If True, return boxes in original image space.
+            revert (bool): If True, return boxes in original image space.
         Returns:
             Tensor: Labeled boxes in shape (n, 5), where the first 4 columns \
                 are bounding box positions (tl_x, tl_y, br_x, br_y) and the \
                 5-th column is a score between 0 and 1.
         """
         assert len(cls_scores) == len(bbox_preds) == len(mlvl_points)
+        img_shape = img_metas['img_shape']
+        scale_factor = img_metas['scale_factor']
         mlvl_bboxes = []
         mlvl_scores = []
         mlvl_centerness = []
@@ -122,7 +110,6 @@ class PointAnchorConverter(BaseConverter):
             centerness = centerness.permute(1, 2, 0).reshape(-1).sigmoid()
 
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
-            nms_pre = test_cfg.get('nms_pre', -1)
             if nms_pre > 0 and scores.shape[0] > nms_pre:
                 max_scores, _ = (scores * centerness[:, None]).max(dim=1)
                 _, topk_inds = max_scores.topk(nms_pre)
@@ -135,21 +122,15 @@ class PointAnchorConverter(BaseConverter):
             mlvl_scores.append(scores)
             mlvl_centerness.append(centerness)
         mlvl_bboxes = torch.cat(mlvl_bboxes)
-        if rescale:
-            mlvl_bboxes /= mlvl_bboxes.new_tensor(scale_factor)
         mlvl_scores = torch.cat(mlvl_scores)
         padding = mlvl_scores.new_zeros(mlvl_scores.shape[0], 1)
         # remind that we set FG labels to [0, num_class-1] since  v2.0
         # BG cat_id: num_class
         mlvl_scores = torch.cat([mlvl_scores, padding], dim=1)
         mlvl_centerness = torch.cat(mlvl_centerness)
-        det_bboxes, det_labels = multiclass_nms(
-            mlvl_bboxes,
-            mlvl_scores,
-            test_cfg.score_thr,
-            test_cfg.nms,
-            test_cfg.max_per_img,
-            score_factors=mlvl_centerness)
-        bbox_result = bbox2result(det_bboxes, det_labels,
-                                  self.cls_out_channels)
-        return bbox_result
+        if revert:
+            flip = img_metas['flip']
+            flip_direction = img_metas['flip_direction']
+            mlvl_bboxes = bbox_revert(mlvl_bboxes, img_shape, scale_factor,
+                                      flip, flip_direction)
+        return mlvl_bboxes, mlvl_scores, mlvl_centerness

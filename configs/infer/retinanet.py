@@ -35,9 +35,7 @@ detector = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,  # TODO
-        norm_cfg=dict(
-            typename='BN',
-            requires_grad=True),  # TODO
+        norm_cfg=dict(typename='BN', requires_grad=True),  # TODO
         norm_eval=True,
         style='pytorch'),  # TODO
     neck=dict(
@@ -80,19 +78,19 @@ infer_engine = dict(
     converter=dict(
         typename='BBoxAnchorConverter',
         num_classes=num_classes,
-        test_cfg=dict(
-            nms_pre=1000,
-            min_bbox_size=0,
-            score_thr=0.6,
-            nms=dict(
-                typename='nms',
-                iou_thr=0.5),
-            max_per_img=100),
         bbox_coder=bbox_coder,
-        rescale=True))
+        nms_pre=1000,
+        use_sigmoid=use_sigmoid),
+    num_classes=num_classes,
+    test_cfg=dict(
+        min_bbox_size=0,
+        score_thr=0.6,
+        nms=dict(typename='nms', iou_thr=0.5),
+        max_per_img=100),
+    use_sigmoid=use_sigmoid)
 
 # 4. weights
-weights = dict(filepath='workdir/retinanet/epoch_12_weights.pth')
+weights = dict(filepath='retinanet_r50.pth')
 
 # 5. show
 class_names = ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',

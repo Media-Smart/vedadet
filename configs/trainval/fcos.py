@@ -2,9 +2,7 @@
 dataset_type = 'CocoDataset'
 data_root = '/media/data/datasets/COCO2017/'
 img_norm_cfg = dict(
-        mean=[123.675, 116.28, 103.53],
-        std=[58.395, 57.12, 57.375],
-        to_rgb=True)
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 size_divisor = 32
 
 data = dict(
@@ -22,9 +20,8 @@ data = dict(
             dict(typename='Normalize', **img_norm_cfg),
             dict(typename='Pad', size_divisor=size_divisor),
             dict(typename='DefaultFormatBundle'),
-            dict(
-                typename='Collect',
-                keys=['img', 'gt_bboxes', 'gt_labels'])]),
+            dict(typename='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+        ]),
     val=dict(
         typename=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
@@ -50,8 +47,8 @@ data = dict(
 # 2. model
 num_classes = 80
 strides = [8, 16, 32, 64, 128]
-regress_ranges = ((-1, 64), (64, 128), (128, 256),
-                  (256, 512), (512, 10000))
+use_sigmoid = True
+regress_ranges = ((-1, 64), (64, 128), (128, 256), (256, 512), (512, 10000))
 
 detector = dict(
     typename='SingleStageDetector',
@@ -61,9 +58,7 @@ detector = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
-        norm_cfg=dict(
-            typename='BN',
-            requires_grad=True),
+        norm_cfg=dict(typename='BN', requires_grad=True),
         norm_eval=True,
         style='pytorch'),
     neck=dict(
@@ -82,12 +77,14 @@ detector = dict(
         stacked_convs=4,
         feat_channels=256,
         strides=strides,
+        use_sigmoid=use_sigmoid,
         norm_cfg=None))
 
 # 3. engines
 meshgrid = dict(
     typename='PointAnchorMeshGrid',
-    strides=strides,)
+    strides=strides,
+)
 
 train_engine = dict(
     typename='TrainEngine',
@@ -102,24 +99,21 @@ train_engine = dict(
         center_sample_radius=1.5,
         loss_cls=dict(
             typename='FocalLoss',
-            use_sigmoid=True,
+            use_sigmoid=use_sigmoid,
             gamma=2.0,
             alpha=0.25,
             loss_weight=1.0),
-        loss_bbox=dict(
-            typename='IoULoss',
-            loss_weight=1.0),
+        loss_bbox=dict(typename='IoULoss', loss_weight=1.0),
         loss_centerness=dict(
             typename='CrossEntropyLoss',
-            use_sigmoid=True,
+            use_sigmoid=use_sigmoid,
             loss_weight=1.0)),
     optimizer=dict(
         typename='SGD',
-        lr=0.005,
+        lr=0.01,
         momentum=0.9,
         weight_decay=0.0001,
-        paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.)
-        ))
+        paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.)))
 
 ## 3.2 val engine
 val_engine = dict(
@@ -128,46 +122,41 @@ val_engine = dict(
     meshgrid=meshgrid,
     converter=dict(
         typename='PointAnchorConverter',
-        cls_out_channels=num_classes,
-        test_cfg=dict(
-            nms_pre=1000,
-            min_bbox_size=0,
-            score_thr=0.05,
-            nms=dict(typename='nms', iou_thr=0.5),
-            max_per_img=100),
-        rescale=True),
+        num_classes=num_classes,
+        nms_pre=1000,
+        use_sigmoid=use_sigmoid),
+    num_classes=num_classes,
+    test_cfg=dict(
+        min_bbox_size=0,
+        score_thr=0.05,
+        nms=dict(typename='nms', iou_thr=0.5),
+        max_per_img=100),
+    use_sigmoid=use_sigmoid,
     eval_metric=None)
 
 # 4. hooks
 hooks = [
-        dict(
-            typename='OptimizerHook',
-            grad_clip=dict(max_norm=35, norm_type=2)
-            ),
-        dict(
-            typename='StepLrSchedulerHook',
-            step=[8, 11],
-            warmup='constant',
-            warmup_iters=500,
-            warmup_ratio=1.0 / 10
-            ),
-        dict(
-            typename='SnapshotHook',
-            interval=1),
-        dict(
-            typename='LoggerHook',
-            interval=1),
-        dict(typename='EvalHook'),
-        ]
+    dict(typename='OptimizerHook', grad_clip=dict(max_norm=35, norm_type=2)),
+    dict(
+        typename='StepLrSchedulerHook',
+        step=[8, 11],
+        warmup='constant',
+        warmup_iters=500,
+        warmup_ratio=1.0 / 10),
+    dict(typename='SnapshotHook', interval=1),
+    dict(typename='LoggerHook', interval=10),
+    dict(typename='EvalHook'),
+]
 
 # 5. work modes
 modes = ['train', 'val']
 max_epochs = 12
 
 # 6. misc
-weights = dict(filepath='/media/data/home/yichaoxiong/packages/weights/resnet50-19c8e357.pth',
-       prefix='backbone')
-# weights = dict(filepath='workdir/fcos/epoch_12_weights.pth')
+weights = dict(
+    filepath=
+    '/media/data/home/yichaoxiong/packages/weights/resnet50-19c8e357.pth',
+    prefix='backbone')
 # optimizer = dict(filepath='workdir/fcos/epoch_1_optim.pth')
 # meta = dict(filepath='workdir/fcos/epoch_1_meta.pth')
 

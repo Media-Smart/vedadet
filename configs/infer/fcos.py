@@ -22,8 +22,8 @@ data_pipeline = [
 # 2. model
 num_classes = 80
 strides = [8, 16, 32, 64, 128]
-regress_ranges = ((-1, 64), (64, 128), (128, 256),
-                  (256, 512), (512, 10000))
+use_sigmoid = True
+regress_ranges = ((-1, 64), (64, 128), (128, 256), (256, 512), (512, 10000))
 
 detector = dict(
     typename='SingleStageDetector',
@@ -33,9 +33,7 @@ detector = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
-        norm_cfg=dict(
-            typename='BN',
-            requires_grad=True),
+        norm_cfg=dict(typename='BN', requires_grad=True),
         norm_eval=True,
         style='pytorch'),
     neck=dict(
@@ -54,12 +52,14 @@ detector = dict(
         stacked_convs=4,
         feat_channels=256,
         strides=strides,
+        use_sigmoid=use_sigmoid,
         norm_cfg=None))
 
 # 3. engine
 meshgrid = dict(
     typename='PointAnchorMeshGrid',
-    strides=strides,)
+    strides=strides,
+)
 
 infer_engine = dict(
     typename='InferEngine',
@@ -67,15 +67,16 @@ infer_engine = dict(
     meshgrid=meshgrid,
     converter=dict(
         typename='PointAnchorConverter',
-        cls_out_channels=num_classes,
-        test_cfg=dict(
-            nms_pre=1000,
-            min_bbox_size=0,
-            score_thr=0.6,
-            nms=dict(typename='nms', iou_thr=0.5),
-            max_per_img=100),
-        rescale=True),
-    )
+        num_classes=num_classes,
+        nms_pre=1000,
+        use_sigmoid=use_sigmoid),
+    num_classes=num_classes,
+    test_cfg=dict(
+        min_bbox_size=0,
+        score_thr=0.5,
+        nms=dict(typename='nms', iou_thr=0.5),
+        max_per_img=100),
+    use_sigmoid=use_sigmoid)
 
 # 4. weights
 weights = dict(filepath='workdir/fcos/epoch_12_weights.pth')

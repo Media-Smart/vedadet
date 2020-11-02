@@ -23,9 +23,6 @@ class AnchorFreeHead(BaseDenseHead):
         conv_bias (bool | str): If specified as `auto`, it will be decided by
             the norm_cfg. Bias of conv will be set as True if `norm_cfg` is
             None, otherwise False. Default: "auto".
-        background_label (int | None): Label ID of background, set as 0 for
-            RPN and num_classes for other heads. It will automatically set as
-            num_classes if None is given.
         loss_cls (dict): Config of classification loss.
         loss_bbox (dict): Config of localization loss.
         conv_cfg (dict): Config dict for convolution layer. Default: None.
@@ -39,30 +36,27 @@ class AnchorFreeHead(BaseDenseHead):
                  in_channels,
                  feat_channels=256,
                  stacked_convs=4,
-                 strides=(4, 8, 16, 32, 64),
+                 strides=[8, 16, 32, 64, 128],
                  dcn_on_last_conv=False,
                  conv_bias='auto',
-                 background_label=None,
                  conv_cfg=None,
-                 norm_cfg=None):
+                 norm_cfg=None,
+                 use_sigmoid=True):
         super(AnchorFreeHead, self).__init__()
+        assert use_sigmoid is True
         self.num_classes = num_classes
         self.cls_out_channels = num_classes
         self.in_channels = in_channels
         self.feat_channels = feat_channels
         self.stacked_convs = stacked_convs
-        self.strides = strides
+        # will be used in derived class such as FCOSHead
+        self.strides = strides 
         self.dcn_on_last_conv = dcn_on_last_conv
         assert conv_bias == 'auto' or isinstance(conv_bias, bool)
         self.conv_bias = conv_bias
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
         self.fp16_enabled = False
-        self.background_label = (
-            num_classes if background_label is None else background_label)
-        # background_label should be either 0 or num_classes
-        assert (self.background_label == 0
-                or self.background_label == num_classes)
 
         self._init_layers()
 

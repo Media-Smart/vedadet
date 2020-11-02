@@ -1,7 +1,7 @@
 import torch
 
 from vedacore.misc import registry
-from vedadet.misc.bbox import bbox2result, build_bbox_coder, multiclass_nms
+from vedadet.misc.bbox import bbox_revert, build_bbox_coder
 from .base_converter import BaseConverter
 
 
@@ -10,9 +10,9 @@ class BBoxAnchorConverter(BaseConverter):
 
     def __init__(self,
                  num_classes,
-                 test_cfg,
+                 nms_pre,
                  bbox_coder,
-                 rescale=False,
+                 revert=True,
                  use_sigmoid=True):
         super().__init__()
         self.bbox_coder = build_bbox_coder(bbox_coder)
@@ -21,16 +21,10 @@ class BBoxAnchorConverter(BaseConverter):
             self.cls_out_channels = num_classes
         else:
             self.cls_out_channels = num_classes + 1
-        self.test_cfg = test_cfg
-        self.rescale = rescale
+        self.nms_pre = nms_pre
+        self.revert = revert
 
-    def get_bboxes(
-        self,
-        mlvl_anchors,
-        img_metas,
-        cls_scores,
-        bbox_preds,
-    ):
+    def get_bboxes(self, mlvl_anchors, img_metas, cls_scores, bbox_preds):
         """Transform network output for a batch into bbox predictions.
 
         Aapted from https://github.com/open-mmlab/mmdetection
@@ -93,12 +87,9 @@ class BBoxAnchorConverter(BaseConverter):
             ]
             # TODO: hard code. 0 for anchor_list, 1 for valid_flag_list
             anchors = mlvl_anchors[0][img_id]
-            img_shape = img_metas[img_id]['img_shape']
-            scale_factor = img_metas[img_id]['scale_factor']
             proposals = self._get_bboxes_single(cls_score_list, bbox_pred_list,
-                                                anchors, img_shape,
-                                                scale_factor, self.test_cfg,
-                                                self.rescale)
+                                                anchors, img_metas[img_id],
+                                                self.nms_pre, self.revert)
             result_list.append(proposals)
         return result_list
 
@@ -106,10 +97,9 @@ class BBoxAnchorConverter(BaseConverter):
                            cls_score_list,
                            bbox_pred_list,
                            mlvl_anchors,
-                           img_shape,
-                           scale_factor,
-                           cfg,
-                           rescale=False):
+                           img_metas,
+                           nms_pre,
+                           revert=True):
         """Transform outputs for a single batch item into bbox predictions.
 
         Aapted from https://github.com/open-mmlab/mmdetection
@@ -136,7 +126,8 @@ class BBoxAnchorConverter(BaseConverter):
         """
         # if len(mlvl_anchors) > 1:
         #     mlvl_anchors = mlvl_anchors[0]
-        cfg = self.test_cfg if cfg is None else cfg
+        img_shape = img_metas['img_shape']
+        scale_factor = img_metas['scale_factor']
         assert len(cls_score_list) == len(bbox_pred_list) == len(mlvl_anchors)
         mlvl_bboxes = []
         mlvl_scores = []
@@ -150,7 +141,6 @@ class BBoxAnchorConverter(BaseConverter):
             else:
                 scores = cls_score.softmax(-1)
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
-            nms_pre = cfg.get('nms_pre', -1)
             if nms_pre > 0 and scores.shape[0] > nms_pre:
                 # Get maximum scores for foreground classes.
                 if self.use_sigmoid_cls:
@@ -169,8 +159,6 @@ class BBoxAnchorConverter(BaseConverter):
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
         mlvl_bboxes = torch.cat(mlvl_bboxes)
-        if rescale:
-            mlvl_bboxes /= mlvl_bboxes.new_tensor(scale_factor)
         mlvl_scores = torch.cat(mlvl_scores)
         if self.use_sigmoid_cls:
             # Add a dummy background class to the backend when using sigmoid
@@ -178,9 +166,10 @@ class BBoxAnchorConverter(BaseConverter):
             # BG cat_id: num_class
             padding = mlvl_scores.new_zeros(mlvl_scores.shape[0], 1)
             mlvl_scores = torch.cat([mlvl_scores, padding], dim=1)
-        det_bboxes, det_labels = multiclass_nms(mlvl_bboxes, mlvl_scores,
-                                                cfg.score_thr, cfg.nms,
-                                                cfg.max_per_img)
-        bbox_result = bbox2result(det_bboxes, det_labels,
-                                  self.cls_out_channels)
-        return bbox_result
+        mlvl_centerness = mlvl_scores.new_ones(mlvl_scores.shape[0]).detach()
+        if revert:
+            flip = img_metas['flip']
+            flip_direction = img_metas['flip_direction']
+            mlvl_bboxes = bbox_revert(mlvl_bboxes, img_shape, scale_factor,
+                                      flip, flip_direction)
+        return mlvl_bboxes, mlvl_scores, mlvl_centerness

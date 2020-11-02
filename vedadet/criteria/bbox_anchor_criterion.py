@@ -38,7 +38,6 @@ class BBoxAnchorCriterion(BaseCriterion):
                      target_means=(.0, .0, .0, .0),
                      target_stds=(1.0, 1.0, 1.0, 1.0)),
                  reg_decoded_bbox=False,
-                 background_label=None,
                  loss_cls=dict(
                      typename='CrossEntropyLoss',
                      use_sigmoid=True,
@@ -61,13 +60,7 @@ class BBoxAnchorCriterion(BaseCriterion):
         if self.cls_out_channels <= 0:
             raise ValueError(f'num_classes={num_classes} is too small')
         self.reg_decoded_bbox = reg_decoded_bbox
-
-        self.background_label = (
-            num_classes if background_label is None else background_label)
-        # background_label should be either 0 or num_classes
-        assert (self.background_label == 0
-                or self.background_label == num_classes)
-
+        self.background_label = num_classes
         self.bbox_coder = build_bbox_coder(bbox_coder)
         self.loss_cls = build_loss(loss_cls)
         self.loss_bbox = build_loss(loss_bbox)
@@ -80,7 +73,6 @@ class BBoxAnchorCriterion(BaseCriterion):
             else:
                 sampler_cfg = dict(typename='PseudoSampler')
             self.sampler = build_sampler(sampler_cfg, context=self)
-        self.fp16_enabled = False
 
         self.meshgrid = build_meshgrid(meshgrid)
         # usually the numbers of anchors for each level are the same
@@ -94,7 +86,6 @@ class BBoxAnchorCriterion(BaseCriterion):
                             gt_bboxes_ignore,
                             gt_labels,
                             img_meta,
-                            label_channels=1,
                             unmap_outputs=True):
         """Compute regression and classification targets for anchors in a
         single image.
@@ -115,7 +106,6 @@ class BBoxAnchorCriterion(BaseCriterion):
             img_meta (dict): Meta info of the image.
             gt_labels (Tensor): Ground truth labels of each box,
                 shape (num_gts,).
-            label_channels (int): Channel of label.
             unmap_outputs (bool): Whether to map outputs back to the original
                 set of anchors.
 
@@ -196,7 +186,6 @@ class BBoxAnchorCriterion(BaseCriterion):
                     img_metas,
                     gt_bboxes_ignore_list=None,
                     gt_labels_list=None,
-                    label_channels=1,
                     unmap_outputs=True,
                     return_sampling_results=False):
         """Compute regression and classification targets for anchors in
@@ -218,7 +207,6 @@ class BBoxAnchorCriterion(BaseCriterion):
             gt_bboxes_ignore_list (list[Tensor]): Ground truth bboxes to be
                 ignored.
             gt_labels_list (list[Tensor]): Ground truth labels of each box.
-            label_channels (int): Channel of label.
             unmap_outputs (bool): Whether to map outputs back to the original
                 set of anchors.
 
@@ -261,7 +249,6 @@ class BBoxAnchorCriterion(BaseCriterion):
             gt_bboxes_ignore_list,
             gt_labels_list,
             img_metas,
-            label_channels=label_channels,
             unmap_outputs=unmap_outputs)
         (all_labels, all_label_weights, all_bbox_targets, all_bbox_weights,
          pos_inds_list, neg_inds_list, sampling_results_list) = results[:7]
@@ -371,15 +358,13 @@ class BBoxAnchorCriterion(BaseCriterion):
 
         anchor_list, valid_flag_list = self.meshgrid.gen_anchor_mesh(
             featmap_sizes, img_metas, device=device)
-        label_channels = self.cls_out_channels if self.use_sigmoid_cls else 1
         cls_reg_targets = self.get_targets(
             anchor_list,
             valid_flag_list,
             gt_bboxes,
             img_metas,
             gt_bboxes_ignore_list=gt_bboxes_ignore,
-            gt_labels_list=gt_labels,
-            label_channels=label_channels)
+            gt_labels_list=gt_labels)
         if cls_reg_targets is None:
             return None
         (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list,

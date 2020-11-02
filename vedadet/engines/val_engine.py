@@ -5,13 +5,15 @@ from .infer_engine import InferEngine
 @registry.register_module('engine')
 class ValEngine(InferEngine):
 
-    def __init__(self, detector, meshgrid, converter, eval_metric):
-        super().__init__(detector, meshgrid, converter)
+    def __init__(self, detector, meshgrid, converter, num_classes, use_sigmoid,
+                 test_cfg, eval_metric):
+        super().__init__(detector, meshgrid, converter, num_classes,
+                         use_sigmoid, test_cfg)
         self.eval_metric = eval_metric
 
     def forward(self, data):
         return self.forward_impl(**data)
 
     def forward_impl(self, img, img_metas):
-        dets = self.infer(img[0], img_metas[0])
+        dets = self.infer(img, img_metas)
         return dets

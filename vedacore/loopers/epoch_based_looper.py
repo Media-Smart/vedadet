@@ -30,3 +30,5 @@ class EpochBasedLooper(BaseLooper):
                 if mode == BaseLooper.TRAIN:
                     self._epoch += 1
                 self.hook_pool.fire(f'after_{mode}_epoch', self)
+            if len(self.modes) == 1 and self.modes[0] == EpochBasedLooper.VAL:
+                break

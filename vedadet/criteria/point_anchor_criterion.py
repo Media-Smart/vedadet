@@ -51,6 +51,8 @@ class PointAnchorCriterion(BaseCriterion):
                      loss_weight=1.0)):
         super().__init__()
         self.num_classes = num_classes
+        use_sigmoid_cls = loss_cls.get('use_sigmoid', False)
+        assert use_sigmoid_cls is True
         self.meshgrid = build_meshgrid(meshgrid)
         self.strides = strides
         self.regress_ranges = regress_ranges

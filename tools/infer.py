@@ -83,7 +83,7 @@ def main():
         # just get the actual data from DataContainer
         data['img_metas'] = data['img_metas'][0].data
         data['img'] = data['img'][0].data
-    result = engine.infer(data['img'][0], data['img_metas'][0])[0]
+    result = engine.infer(data['img'], data['img_metas'])[0]
     plot_result(result, imgname, class_names)
 
 
