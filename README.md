@@ -87,6 +87,7 @@ python tools/trainval.py configs/trainval/retinanet.py
 ## Test
 
 a. Config
+
 Modify some configuration accordingly in the config file like `configs/trainval/retinanet.py`
 
 b. Test
