@@ -48,7 +48,7 @@ class Registry:
             raise KeyError(f'{module_name} is not in registry')
         dd = self._module_dict[module_name]
         if cls_name not in dd:
-            raise KeyError(f'{cls_name} is not in {module_name} of registry')
+            raise KeyError(f'{cls_name} is not registered in {module_name}')
 
         return dd[cls_name]
 

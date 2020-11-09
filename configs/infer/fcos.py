@@ -23,9 +23,10 @@ data_pipeline = [
 num_classes = 80
 strides = [8, 16, 32, 64, 128]
 use_sigmoid = True
-regress_ranges = ((-1, 64), (64, 128), (128, 256), (256, 512), (512, 10000))
+regress_ranges = ((-1, 64), (64, 128), (128, 256),
+                  (256, 512), (512, 10000))
 
-detector = dict(
+model = dict(
     typename='SingleStageDetector',
     backbone=dict(
         typename='ResNet',
@@ -33,7 +34,9 @@ detector = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
-        norm_cfg=dict(typename='BN', requires_grad=True),
+        norm_cfg=dict(
+            typename='BN',
+            requires_grad=True),
         norm_eval=True,
         style='pytorch'),
     neck=dict(
@@ -58,12 +61,11 @@ detector = dict(
 # 3. engine
 meshgrid = dict(
     typename='PointAnchorMeshGrid',
-    strides=strides,
-)
+    strides=strides)
 
 infer_engine = dict(
     typename='InferEngine',
-    detector=detector,
+    model=model,
     meshgrid=meshgrid,
     converter=dict(
         typename='PointAnchorConverter',

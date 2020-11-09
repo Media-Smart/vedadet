@@ -14,14 +14,26 @@ data = dict(
         img_prefix=data_root + 'train2017/',
         pipeline=[
             dict(typename='LoadImageFromFile'),
-            dict(typename='LoadAnnotations', with_bbox=True),
-            dict(typename='Resize', img_scale=(1333, 800), keep_ratio=True),
-            dict(typename='RandomFlip', flip_ratio=0.5),
-            dict(typename='Normalize', **img_norm_cfg),
-            dict(typename='Pad', size_divisor=size_divisor),
+            dict(
+                typename='LoadAnnotations',
+                with_bbox=True),
+            dict(
+                typename='Resize',
+                img_scale=(1333, 800),
+                keep_ratio=True),
+            dict(
+                typename='RandomFlip',
+                flip_ratio=0.5),
+            dict(
+                typename='Normalize',
+                **img_norm_cfg),
+            dict(
+                typename='Pad',
+                size_divisor=size_divisor),
             dict(typename='DefaultFormatBundle'),
-            dict(typename='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
-        ]),
+            dict(
+                typename='Collect',
+                keys=['img', 'gt_bboxes', 'gt_labels'])]),
     val=dict(
         typename=dataset_type,
         ann_file=data_root + 'annotations/instances_val2017.json',
@@ -33,15 +45,20 @@ data = dict(
                 img_scale=(1333, 800),
                 flip=False,
                 transforms=[
-                    dict(typename='Resize', keep_ratio=True),
+                    dict(
+                        typename='Resize',
+                        keep_ratio=True),
                     dict(typename='RandomFlip'),
-                    dict(typename='Normalize', **img_norm_cfg),
-                    dict(typename='Pad', size_divisor=size_divisor),
+                    dict(
+                        typename='Normalize',
+                        **img_norm_cfg),
+                    dict(
+                        typename='Pad',
+                        size_divisor=size_divisor),
                     dict(typename='DefaultFormatBundle'),
-                    dict(typename='Collect', keys=['img'])
-                ])
-        ]),
-)
+                    dict(
+                        typename='Collect',
+                        keys=['img'])])]))
 
 # 2. model
 num_classes = 80
@@ -51,7 +68,7 @@ scales_per_octave = 3
 ratios = [0.5, 1.0, 2.0]
 num_anchors = scales_per_octave * len(ratios)
 
-detector = dict(
+model = dict(
     typename='SingleStageDetector',
     backbone=dict(
         typename='ResNet',
@@ -59,7 +76,9 @@ detector = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,  # TODO
-        norm_cfg=dict(typename='BN', requires_grad=True),  # TODO
+        norm_cfg=dict(
+            typename='BN',
+            requires_grad=True),  # TODO
         norm_eval=True,
         style='pytorch'),  # TODO
     neck=dict(
@@ -96,7 +115,7 @@ bbox_coder = dict(
 
 train_engine = dict(
     typename='TrainEngine',
-    detector=detector,
+    model=model,
     criterion=dict(
         typename='BBoxAnchorCriterion',
         num_classes=num_classes,
@@ -108,7 +127,9 @@ train_engine = dict(
             gamma=2.0,
             alpha=0.25,
             loss_weight=1.0),
-        loss_bbox=dict(typename='L1Loss', loss_weight=1.0),
+        loss_bbox=dict(
+            typename='L1Loss',
+            loss_weight=1.0),
         train_cfg=dict(
             assigner=dict(
                 typename='MaxIoUAssigner',
@@ -119,12 +140,16 @@ train_engine = dict(
             allowed_border=-1,
             pos_weight=-1,
             debug=False)),
-    optimizer=dict(typename='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001))
+    optimizer=dict(
+        typename='SGD',
+        lr=0.01,
+        momentum=0.9,
+        weight_decay=0.0001))
 
 ## 3.2 val engine
 val_engine = dict(
     typename='ValEngine',
-    detector=detector,
+    model=model,
     meshgrid=meshgrid,
     converter=dict(
         typename='BBoxAnchorConverter',
@@ -136,7 +161,9 @@ val_engine = dict(
     test_cfg=dict(
         min_bbox_size=0,
         score_thr=0.05,
-        nms=dict(typename='nms', iou_thr=0.5),
+        nms=dict(
+            typename='nms',
+            iou_thr=0.5),
         max_per_img=100),
     use_sigmoid=use_sigmoid,
     eval_metric=None)
@@ -151,9 +178,12 @@ hooks = [
         warmup_iters=1000,
         warmup_ratio=0.001),
     dict(typename='EvalHook'),
-    dict(typename='SnapshotHook', interval=1),
-    dict(typename='LoggerHook', interval=10)
-]
+    dict(
+        typename='SnapshotHook',
+        interval=1),
+    dict(
+        typename='LoggerHook',
+        interval=10)]
 
 # 5. work modes
 modes = ['train', 'val']

@@ -7,13 +7,13 @@ from .base_engine import BaseEngine
 @registry.register_module('engine')
 class TrainEngine(BaseEngine):
 
-    def __init__(self, detector, criterion, optimizer):
-        super().__init__(detector)
+    def __init__(self, model, criterion, optimizer):
+        super().__init__(model)
         self.criterion = build_criterion(criterion)
-        self.optimizer = build_optimizer(self.detector, optimizer)
+        self.optimizer = build_optimizer(self.model, optimizer)
 
     def extract_feats(self, img):
-        feats = self.detector(img, train=True)
+        feats = self.model(img, train=True)
         return feats
 
     def forward(self, data):

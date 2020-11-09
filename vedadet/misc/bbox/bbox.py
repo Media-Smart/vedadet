@@ -132,8 +132,6 @@ def multiclass_nms(multi_bboxes,
         scores = scores * score_factors[:, None]
     valid_mask = scores > score_thr
     bboxes = bboxes[valid_mask]
-    #if score_factors is not None:
-    #    scores = scores * score_factors[:, None]
     scores = scores[valid_mask]
     labels = valid_mask.nonzero(as_tuple=False)[:, 1]
 

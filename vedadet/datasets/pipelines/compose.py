@@ -3,7 +3,6 @@ import collections
 from vedacore.misc import build_from_cfg, registry
 
 
-@registry.register_module('pipeline')
 class Compose(object):
     """Compose multiple transforms sequentially.
 

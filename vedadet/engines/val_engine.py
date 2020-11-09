@@ -5,10 +5,10 @@ from .infer_engine import InferEngine
 @registry.register_module('engine')
 class ValEngine(InferEngine):
 
-    def __init__(self, detector, meshgrid, converter, num_classes, use_sigmoid,
+    def __init__(self, model, meshgrid, converter, num_classes, use_sigmoid,
                  test_cfg, eval_metric):
-        super().__init__(detector, meshgrid, converter, num_classes,
-                         use_sigmoid, test_cfg)
+        super().__init__(model, meshgrid, converter, num_classes, use_sigmoid,
+                         test_cfg)
         self.eval_metric = eval_metric
 
     def forward(self, data):

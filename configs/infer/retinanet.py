@@ -27,7 +27,7 @@ scales_per_octave = 3
 ratios = [0.5, 1.0, 2.0]
 num_anchors = scales_per_octave * len(ratios)
 
-detector = dict(
+model = dict(
     typename='SingleStageDetector',
     backbone=dict(
         typename='ResNet',
@@ -35,7 +35,9 @@ detector = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,  # TODO
-        norm_cfg=dict(typename='BN', requires_grad=True),  # TODO
+        norm_cfg=dict(
+            typename='BN',
+            requires_grad=True),  # TODO
         norm_eval=True,
         style='pytorch'),  # TODO
     neck=dict(
@@ -73,7 +75,7 @@ bbox_coder = dict(
 ## infer engine
 infer_engine = dict(
     typename='InferEngine',
-    detector=detector,
+    model=model,
     meshgrid=meshgrid,
     converter=dict(
         typename='BBoxAnchorConverter',
@@ -85,7 +87,9 @@ infer_engine = dict(
     test_cfg=dict(
         min_bbox_size=0,
         score_thr=0.6,
-        nms=dict(typename='nms', iou_thr=0.5),
+        nms=dict(
+            typename='nms',
+            iou_thr=0.5),
         max_per_img=100),
     use_sigmoid=use_sigmoid)
 

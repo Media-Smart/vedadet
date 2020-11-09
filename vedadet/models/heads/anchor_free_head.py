@@ -50,7 +50,7 @@ class AnchorFreeHead(BaseDenseHead):
         self.feat_channels = feat_channels
         self.stacked_convs = stacked_convs
         # will be used in derived class such as FCOSHead
-        self.strides = strides 
+        self.strides = strides
         self.dcn_on_last_conv = dcn_on_last_conv
         assert conv_bias == 'auto' or isinstance(conv_bias, bool)
         self.conv_bias = conv_bias

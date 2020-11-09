@@ -9,9 +9,9 @@ from .base_engine import BaseEngine
 @registry.register_module('engine')
 class InferEngine(BaseEngine):
 
-    def __init__(self, detector, meshgrid, converter, num_classes, use_sigmoid,
+    def __init__(self, model, meshgrid, converter, num_classes, use_sigmoid,
                  test_cfg):
-        super().__init__(detector)
+        super().__init__(model)
         self.meshgrid = build_meshgrid(meshgrid)
         self.converter = build_converter(converter)
         if use_sigmoid:
@@ -21,7 +21,7 @@ class InferEngine(BaseEngine):
         self.test_cfg = test_cfg
 
     def extract_feats(self, img):
-        feats = self.detector(img, train=False)
+        feats = self.model(img, train=False)
         return feats
 
     def _get_raw_dets(self, img, img_metas):

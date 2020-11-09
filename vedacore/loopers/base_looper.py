@@ -109,12 +109,12 @@ class BaseLooper(metaclass=ABCMeta):
 
         self.logger.info('Loading weights from %s', filepath)
         # Wether to load train or val engine is OK
-        # they share the same detector
+        # they share the same model
         for engine in self.engines.values():
             if is_module_wrapper(engine):
                 engine = engine.module
-            detector = engine.detector
-            load_weights(detector, filepath, map_location, strict, self.logger,
+            model = engine.model
+            load_weights(model, filepath, map_location, strict, self.logger,
                          prefix)
 
     def load_optimizer(self, filepath, map_location='cpu'):
@@ -127,7 +127,7 @@ class BaseLooper(metaclass=ABCMeta):
 
         self.logger.info('Loading optimizer from %s', filepath)
         # Wether to load train or val engine is OK
-        # they share the same detector
+        # they share the same model
         engine = self.train_engine
         if is_module_wrapper(engine):
             engine = engine.module
@@ -144,7 +144,7 @@ class BaseLooper(metaclass=ABCMeta):
 
         self.logger.info('Loading meta from %s', filepath)
         # Wether to load train or val engine is OK
-        # they share the same detector
+        # they share the same model
         meta = load_meta(filepath, map_location)
         self._epoch = meta['epoch']
         self._iter = meta['iter']
@@ -193,8 +193,8 @@ class BaseLooper(metaclass=ABCMeta):
             save_meta(meta, filepath)
 
         filepath = '%s_weights.pth' % prefix
-        detector = self.train_engine.detector
-        save_weights(detector, filepath)
+        model = self.train_engine.model
+        save_weights(model, filepath)
         self.logger.info('Saved %s at epoch %d, iter %d as %s' %
                          (', '.join(log_info), self.epoch, self.iter, prefix))
 

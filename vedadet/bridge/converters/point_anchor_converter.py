@@ -12,7 +12,7 @@ class PointAnchorConverter(BaseConverter):
 
     def __init__(self, num_classes, nms_pre, revert=True, use_sigmoid=True):
         super().__init__()
-        assert use_sigmoid == True
+        assert use_sigmoid is True
         self.nms_pre = nms_pre
         self.revert = revert
         self.cls_out_channels = num_classes
