@@ -13,7 +13,7 @@ vedadet is a single stage object detector toolbox based on PyTorch.
  
 - **Friendly to TensorRT**
   
-  Detectors can be easily converter to TensorRT engine.
+  Detectors can be easily converted to TensorRT engine.
   
 - **Easy to deploy**
   
