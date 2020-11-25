@@ -106,7 +106,7 @@ Modify some configuration accordingly in the config file like `configs/trainval/
 b. Inference
 
 ```shell
-python tools/test.py configs/infer/retinanet.py image_path
+python tools/infer.py configs/infer/retinanet.py image_path
 ```
 
 ## Deploy
