@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 
 from vedacore.misc import registry
 from ..builder import build_backbone, build_head, build_neck
@@ -22,7 +23,12 @@ class SingleStageDetector(BaseDetector):
     def init_weights(self):
         self.backbone.init_weights()
         if self.neck:
-            self.neck.init_weights()
+            if isinstance(self.neck, nn.Sequential):
+                for m in self.neck:
+                    m.init_weights()
+            else:
+                self.neck.init_weights()
+
         self.bbox_head.init_weights()
 
     def forward_impl(self, x):

@@ -5,6 +5,7 @@ import os
 import os.path as osp
 import random
 import torch
+import torch.distributed as dist
 from collections import abc
 from functools import partial
 
@@ -132,3 +133,11 @@ def set_random_seed(seed=None, deterministic=False):
     if deterministic:
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
+
+
+def reduce_mean(tensor):
+    if not (dist.is_available() and dist.is_initialized()):
+        return tensor
+    tensor = tensor.clone()
+    dist.all_reduce(tensor.div_(dist.get_world_size()), op=dist.ReduceOp.SUM)
+    return tensor
