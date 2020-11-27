@@ -1,10 +1,14 @@
 from torch import nn
 
+from vedadet.ops import DeformConvPack, ModulatedDeformConvPack
+
 CONV_LAYERS = {
     'Conv1d': nn.Conv1d,
     'Conv2d': nn.Conv2d,
     'Conv3d': nn.Conv3d,
-    'Conv': nn.Conv2d
+    'Conv': nn.Conv2d,
+    'DCN': DeformConvPack,
+    'DCNv2': ModulatedDeformConvPack
 }
 
 

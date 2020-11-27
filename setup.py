@@ -149,6 +149,22 @@ if __name__ == '__main__':
                 name='sigmoid_focal_loss_ext',
                 module='vedadet.ops.sigmoid_focal_loss',
                 sources=['src/sigmoid_focal_loss_ext.cpp'],
-                sources_cuda=['src/cuda/sigmoid_focal_loss_cuda.cu'])],
+                sources_cuda=['src/cuda/sigmoid_focal_loss_cuda.cu']),
+            make_cuda_ext(
+                name='deform_conv_ext',
+                module='vedadet.ops.dcn',
+                sources=['src/deform_conv_ext.cpp'],
+                sources_cuda=[
+                    'src/cuda/deform_conv_cuda.cpp',
+                    'src/cuda/deform_conv_cuda_kernel.cu'
+                ]),
+            make_cuda_ext(
+                name='deform_pool_ext',
+                module='vedadet.ops.dcn',
+                sources=['src/deform_pool_ext.cpp'],
+                sources_cuda=[
+                    'src/cuda/deform_pool_cuda.cpp',
+                    'src/cuda/deform_pool_cuda_kernel.cu'
+                ])],
         cmdclass={'build_ext': BuildExtension},
         zip_safe=False)

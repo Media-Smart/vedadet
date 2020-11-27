@@ -92,10 +92,8 @@ Modify some configuration accordingly in the config file like `configs/trainval/
 
 b. Test
 ```shell
-python tools/trainval.py configs/trainval/retinanet.py
+python tools/test.py configs/trainval/tinaface/retinanet.py weight_path
 ```
-
-Logs will be generated at `${vedadet_root}/workdir`.
 
 ## Inference
 
@@ -120,7 +118,7 @@ To be done.
 
 ## Contact
 
-This repository is currently maintained by Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).
+This repository is currently maintained by Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)), Yanjia Zhu ([@mike112223](http://github.com/mike112223)).
 
 ## Credits
 We got a lot of code from [mmcv](https://github.com/open-mmlab/mmcv) and [mmdetection](https://github.com/open-mmlab/mmdetection), thanks to [open-mmlab](https://github.com/open-mmlab).

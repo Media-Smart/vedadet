@@ -131,3 +131,9 @@ dmypy.json
 # custom
 workdir/
 tests/
+
+data/
+eval_dirs/
+nohup.out
+
+tools/eval_widerface

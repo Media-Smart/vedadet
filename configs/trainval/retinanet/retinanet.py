@@ -1,6 +1,6 @@
 # 1. data
 dataset_type = 'CocoDataset'
-data_root = '/media/data/datasets/COCO2017/'
+data_root = 'data/COCO2017/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 size_divisor = 32
@@ -192,7 +192,7 @@ max_epochs = 12
 # 6. checkpoint
 weights = dict(
     filepath=
-    '/media/data/home/yichaoxiong/packages/weights/resnet50-19c8e357.pth',
+    '~/.cache/torch/checkpoints/resnet50-19c8e357.pth',
     prefix='backbone')
 # optimizer = dict(filepath='workdir/retinanet_mini/epoch_3_optim.pth')
 # meta = dict(filepath='workdir/retinanet_mini/epoch_3_meta.pth')
