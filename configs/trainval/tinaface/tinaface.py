@@ -149,7 +149,7 @@ train_engine = dict(
             allowed_border=-1,
             pos_weight=-1,
             debug=False)),
-    optimizer=dict(typename='SGD', lr=0.00375, momentum=0.9, weight_decay=5e-4))
+    optimizer=dict(typename='SGD', lr=3.75e-3, momentum=0.9, weight_decay=5e-4)) # 3 GPUS
 
 ## 3.2 val engine
 val_engine = dict(
