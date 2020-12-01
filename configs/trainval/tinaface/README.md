@@ -22,6 +22,9 @@ python config/trainval/tinaface/test_widerface.py configs/trainval/tinaface/tina
 ```
 widerface txt file will be generated at `${vedadet_root}/eval_dirs/tmp/tinaface/`, and then download the [eval_tool](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/support/eval_script/eval_tools.zip) to evaluate the WIDERFACE performance.
 
+## Infer
+a. Follow the official instructions on [vedadet](https://github.com/Media-Smart/vedadet) 
+
 ## Results and Models
 
 ### WIDERFACE
