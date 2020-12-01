@@ -28,6 +28,6 @@ widerface txt file will be generated at `${vedadet_root}/eval_dirs/tmp/tinaface/
 
 | Backbone  |  size  | AP50(VOC12) | Easy | Medium | Hard | Download |
 |:---------:|:-------:|:-------:|:--------:|:--------------:|:------:|:--------:|
-| ResNet-50 | (1100, 1650) |   0.923   | 0.963  |  0.957   |  0.930  | [model](https://drive.google.com/file/d/1zU738coEVDBkLBUa4hvJUucL7dcSBT7v/view?usp=sharing) |
+| ResNet-50 | (1100, 1650) |   0.923   | 0.963  |  0.957   |  0.930  | model weights on [Google Drive](https://drive.google.com/file/d/1zU738coEVDBkLBUa4hvJUucL7dcSBT7v/view?usp=sharing) and [Baidu Drive(z4gu)](https://pan.baidu.com/s/12flU7IX-2pNRKTZEeYiQ1Q)|
 
 ![2](./imgs/results.png)
