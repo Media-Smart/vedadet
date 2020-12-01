@@ -25,8 +25,9 @@ def prepare(cfg):
     else:
         device = 'cpu'
     engine = build_engine(cfg.infer_engine)
-    engine.detector.to(device)
-    load_weights(engine.detector, cfg.weights.filepath)
+
+    engine.model.to(device)
+    load_weights(engine.model, cfg.weights.filepath)
 
     data_pipeline = Compose(cfg.data_pipeline)
     return engine, data_pipeline, device
