@@ -167,8 +167,7 @@ max_epochs = 12
 
 # 6. misc
 weights = dict(
-    filepath=
-    '~/.cache/torch/checkpoints/resnet50-19c8e357.pth',
+    filepath='torchvision://resnet50',
     prefix='backbone')
 # optimizer = dict(filepath='workdir/fcos/epoch_1_optim.pth')
 # meta = dict(filepath='workdir/fcos/epoch_1_meta.pth')

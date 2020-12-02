@@ -11,5 +11,5 @@ __all__ = [
     'CustomDataset', 'CocoDataset', 'XMLDataset', 'WIDERFaceDataset',
     'GroupSampler', 'DistributedGroupSampler', 'DistributedSampler',
     'build_dataloader', 'ConcatDataset', 'RepeatDataset',
-    'ClassBalancedDataset', 'DATASETS', 'PIPELINES', 'build_dataset'
+    'ClassBalancedDataset', 'build_dataset'
 ]

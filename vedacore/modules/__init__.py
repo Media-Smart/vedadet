@@ -14,6 +14,6 @@ __all__ = [
     'xavier_init', 'normal_init', 'uniform_init', 'kaiming_init',
     'caffe2_xavier_init', 'bias_init_with_prob', 'ConvModule',
     'build_activation_layer', 'build_conv_layer', 'build_norm_layer',
-    'build_padding_layer', 'build_upsample_layer', 'is_norm', 'NonLocal1d',
+    'build_padding_layer', 'build_upsample_layer', 'NonLocal1d',
     'NonLocal2d', 'NonLocal3d', 'Scale', 'get_model_complexity_info'
 ]
