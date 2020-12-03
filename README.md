@@ -123,11 +123,13 @@ Here are some unsupported operations for model conversion.
 - GN
 - Deformable Conv
 
-Please see more details in [this](https://pytorch.org/docs/stable/onnx.html)
+Please see more details in [this](https://pytorch.org/docs/stable/onnx.html).
 
 b. Inference SDK
 
-To be done.
+Firstly, install flexinfer following the [official instructions](https://github.com/Media-Smart/flexinfer).
+
+Then, see the [example](https://github.com/Media-Smart/flexinfer/tree/master/examples/object_detection) for details.
 
 ## Contact
 
