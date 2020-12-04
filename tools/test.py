@@ -10,8 +10,8 @@ from vedadet.engines import build_engine
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('config', help='train config file path')
+    parser = argparse.ArgumentParser(description='Test a detector')
+    parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
     parser.add_argument('--out', help='output result file in pickle format')
 
