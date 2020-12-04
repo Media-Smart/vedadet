@@ -113,10 +113,10 @@ a. Convert to Onnx
 
 Firstly, install volksdep following the [official instructions](https://github.com/Media-Smart/volksdep).
 
-Then, run the following code to convert PyTorch to Onnx. The input shape format is `CxHxW`. If you need the onnx model with dynamic shape , you can add `--dynamic_shape` in the end.
+Then, run the following code to convert PyTorch to Onnx. The input shape format is `CxHxW`. If you need the onnx model with constant input shape, please remove `--dynamic_shape` in the end.
 
 ```shell
-CUDA_VISIBLE_DEVICES="0" python tools/torch2onnx.py configs/trainval/retinanet/retinanet.py weight_path out_path --dummy_input_shape 3,800,1344
+CUDA_VISIBLE_DEVICES="0" python tools/torch2onnx.py configs/trainval/retinanet/retinanet.py weight_path out_path --dummy_input_shape 3,800,1344 --dynamic_shape
 ```
 
 Here are some unsupported operations for model conversion.
