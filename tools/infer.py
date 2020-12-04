@@ -12,7 +12,7 @@ from vedadet.engines import build_engine
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train a detector')
+    parser = argparse.ArgumentParser(description='Infer a detector')
     parser.add_argument('config', help='config file path')
     parser.add_argument('imgname', help='image file name')
 
