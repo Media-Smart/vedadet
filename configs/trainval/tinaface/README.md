@@ -1,7 +1,16 @@
 # TinaFace: Strong but Simple Baseline for Face Detection
 
 ## Introduction
-Providing a strong but simple baseline method for face detection named TinaFace. The architecture of TinaFace is shown below. See [paper](https://arxiv.org/abs/2011.13183) for details.
+```
+@article{zhu2020tinaface,
+  title={TinaFace: Strong but Simple Baseline for Face Detection},
+  author={Zhu, Yanjia and Cai, Hongxiang and Zhang, Shuhan and Wang, Chenhao and Xiong, Yichao},
+  journal={arXiv preprint arXiv:2011.13183},
+  year={2020}
+}
+```
+
+Providing a strong but simple baseline method for face detection named TinaFace. The architecture of TinaFace is shown below.
 
 ![1](./imgs/model.png)
 
