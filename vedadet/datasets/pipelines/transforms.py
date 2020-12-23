@@ -512,15 +512,13 @@ class RandomCrop(object):
 
 @registry.register_module('pipeline')
 class RandomSquareCrop(object):
-    """Random crop the image & bboxes, the cropped patches have minimum IoU
-    requirement with original image & bboxes, the IoU threshold is randomly
-    selected from min_ious.
+    """Random crop the square patch of image & bboxes with a size from Args
+        (crop_ratio_range or crop_choice) of the short edge of image and
+        keep the overlapped part of box if its center is within the cropped patch.
 
     Args:
-        min_ious (tuple): minimum IoU threshold for all intersections with
-        bounding boxes
-        min_crop_size (float): minimum crop's size (i.e. h,w := a*h, a*w,
-        where a >= min_crop_size).
+        crop_ratio_range (list): a list of two elements (min, max)
+        crop_choice (list): a list of crop ratio.
 
     Note:
         The keys for bboxes, labels and masks should be paired. That is, \
