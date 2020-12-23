@@ -145,11 +145,29 @@ def weights_to_cpu(state_dict):
         state_dict (OrderedDict): Model weights on GPU.
 
     Returns:
-        OrderedDict: Model weights on GPU.
+        OrderedDict: Model weights on CPU.
     """
     state_dict_cpu = OrderedDict()
     for key, val in state_dict.items():
         state_dict_cpu[key] = val.cpu()
+    return state_dict_cpu
+
+
+def optimizer_to_cpu(state_dict):
+    """Copy a optimizer to cpu.
+
+    Args:
+        state_dict (OrderedDict): Model weights on GPU.
+
+    Returns:
+        OrderedDict: optimizer on CPU.
+    """
+    state_dict_cpu = OrderedDict()
+    for key, val in state_dict.items():
+        tmp = dict()
+        for k, v in val.items():
+            tmp[k] = v.cpu()
+        state_dict_cpu[key] = tmp
     return state_dict_cpu
 
 
@@ -186,10 +204,13 @@ def save_optimizer(optimizer, filepath):
     # save optimizer state dict in the checkpoint
     if isinstance(optimizer, Optimizer):
         state_dict = optimizer.state_dict()
+        state_dict['state'] = optimizer_to_cpu(state_dict['state'])
     elif isinstance(optimizer, dict):
         state_dict = {}
         for name, optim in optimizer.items():
             state_dict[name] = optim.state_dict()
+            state_dict[name]['state'] = optimizer_to_cpu(state_dict[name]['state'])
+
     # immediately flush buffer
     with open(filepath, 'wb') as f:
         torch.save(state_dict, f)
