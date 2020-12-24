@@ -51,11 +51,18 @@ bash configs/trainval/tinaface/gen_xml_name_txt.sh
 Follow the official instructions on [vedadet](https://github.com/Media-Smart/vedadet) 
 
 ## Evaluation
+a. Download the [eval_tools](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/support/eval_script/eval_tools.zip) to get the ground truth files. And then run
 ```shell
 cd ${vedadet_root}
-python config/trainval/tinaface/test_widerface.py configs/trainval/tinaface/tinaface.py weight_path
+python configs/trainval/tinaface/filter_widerface_val.py --gt_path downloaded/eval_tools/ground_truth --ann_path data/WIDERFace/WIDER_val/Annotations/
 ```
-widerface txt file will be generated at `${vedadet_root}/eval_dirs/tmp/tinaface/`, and then download the [eval_tool](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/support/eval_script/eval_tools.zip) to evaluate the WIDERFACE performance.
+to filter the ignore face boxes.
+
+b. Then run
+```shell
+python configs/trainval/tinaface/test_widerface.py configs/trainval/tinaface/tinaface.py weight_path
+```
+widerface txt file will be generated at `${vedadet_root}/eval_dirs/tmp/tinaface/`, and then use [eval_tools](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/support/eval_script/eval_tools.zip) to evaluate the WIDERFACE performance.
 
 ## Infer
 Follow the official instructions on [vedadet](https://github.com/Media-Smart/vedadet) 
