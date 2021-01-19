@@ -107,4 +107,4 @@ infer_engine = dict(
 weights = dict(filepath='your/weight/file/path')
 
 # 5. show
-class_names = ('face')
+class_names = ('face', )
