@@ -81,9 +81,9 @@ def build_from_cfg(cfg, registry, module_name='module', default_args=None):
         raise TypeError(f'cfg must be a dict, but got {type(cfg)}')
     if 'typename' not in cfg:
         raise KeyError(
-            f'the cfg dict must contain the key "type", but got {cfg}')
+            f'the cfg dict must contain the key "typename", but got {cfg}')
     if not isinstance(registry, Registry):
-        raise TypeError('registry must be an egistry object, '
+        raise TypeError('registry must be a registry object, '
                         f'but got {type(registry)}')
     if not (isinstance(default_args, dict) or default_args is None):
         raise TypeError('default_args must be a dict or None, '
