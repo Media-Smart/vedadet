@@ -133,7 +133,7 @@ Then, see the [example](https://github.com/Media-Smart/flexinfer/tree/master/exa
 
 ## Contact
 
-This repository is currently maintained by Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)), Yanjia Zhu ([@mike112223](http://github.com/mike112223)).
+This repository is currently maintained by Yanjia Zhu ([@mike112223](http://github.com/mike112223)), Hongxiang Cai ([@hxcai](http://github.com/hxcai)), Yichao Xiong ([@mileistone](https://github.com/mileistone)).
 
 ## Credits
 We got a lot of code from [mmcv](https://github.com/open-mmlab/mmcv) and [mmdetection](https://github.com/open-mmlab/mmdetection), thanks to [open-mmlab](https://github.com/open-mmlab).
