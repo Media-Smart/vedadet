@@ -36,6 +36,11 @@ def get_logger(name, log_file=None, log_level=logging.INFO):
         if name.startswith(logger_name):
             return logger
 
+    if logger.parent is not None:
+        logger.parent.handlers.clear()
+    else:
+        logger.handlers.clear()
+
     stream_handler = logging.StreamHandler()
     handlers = [stream_handler]
 
