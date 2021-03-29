@@ -22,7 +22,8 @@ def trainval(cfg, distributed, logger):
             dataset,
             cfg.data.samples_per_gpu,
             cfg.data.workers_per_gpu,
-            dist=distributed)
+            dist=distributed,
+            seed=cfg.get('seed', None))
         engine = build_engine(cfg.train_engine)
 
         if distributed:
