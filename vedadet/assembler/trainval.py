@@ -64,6 +64,13 @@ def trainval(cfg, distributed, logger):
 
     looper = EpochBasedLooper(cfg.modes, dataloaders, engines, hook_pool,
                               logger, cfg.workdir)
+
+    if isinstance(looper, EpochBasedLooper):
+        looper.hook_pool.register_hook(dict(typename='WorkerInitHook'))
+        if distributed:
+            looper.hook_pool.register_hook(
+                dict(typename='DistSamplerSeedHook'))
+
     if 'weights' in cfg:
         looper.load_weights(**cfg.weights)
     if 'train' in cfg.modes:
