@@ -93,10 +93,10 @@ def build_dataloader(dataset,
         # that images on each GPU are in the same group
         if shuffle:
             sampler = DistributedGroupSampler(dataset, samples_per_gpu,
-                                              world_size, rank)
+                                              world_size, rank, seed=seed)
         else:
             sampler = DistributedSampler(
-                dataset, world_size, rank, shuffle=False)
+                dataset, world_size, rank, shuffle=False, seed=seed)
         batch_size = samples_per_gpu
         num_workers = workers_per_gpu
     else:
@@ -104,9 +104,8 @@ def build_dataloader(dataset,
         batch_size = num_gpus * samples_per_gpu
         num_workers = num_gpus * workers_per_gpu
 
-    init_fn = partial(
-        worker_init_fn, num_workers=num_workers, rank=rank,
-        seed=seed) if seed is not None else None
+    init_fn = WorkerInit(num_workers=num_workers, rank=rank,
+                         seed=seed) if seed is not None else None
 
     data_loader = DataLoader(
         dataset,
@@ -121,9 +120,20 @@ def build_dataloader(dataset,
     return data_loader
 
 
-def worker_init_fn(worker_id, num_workers, rank, seed):
-    # The seed of each worker equals to
-    # num_worker * rank + worker_id + user_seed
-    worker_seed = num_workers * rank + worker_id + seed
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
+class WorkerInit:
+    def __init__(self, num_workers, rank, seed):
+        # The seed of each worker equals to
+        # num_worker * rank + worker_id + user_seed
+        self.num_workers = num_workers
+        self.rank = rank
+        self.seed = seed if seed is not None else 0
+        self.epoch = 0
+
+    def set_epoch(self, epoch):
+        self.epoch = epoch
+
+    def __call__(self, worker_id):
+        worker_seed = (self.num_workers * self.rank + worker_id + self.seed +
+                       self.epoch)
+        np.random.seed(worker_seed)
+        random.seed(worker_seed)

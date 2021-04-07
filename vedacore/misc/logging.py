@@ -27,6 +27,7 @@ def get_logger(name, log_file=None, log_level=logging.INFO):
         logging.Logger: The expected logger.
     """
     logger = logging.getLogger(name)
+    logger.propagate = False
     if name in logger_initialized:
         return logger
     # handle hierarchical names
@@ -35,11 +36,6 @@ def get_logger(name, log_file=None, log_level=logging.INFO):
     for logger_name in logger_initialized:
         if name.startswith(logger_name):
             return logger
-
-    if logger.parent is not None:
-        logger.parent.handlers.clear()
-    else:
-        logger.handlers.clear()
 
     stream_handler = logging.StreamHandler()
     handlers = [stream_handler]
