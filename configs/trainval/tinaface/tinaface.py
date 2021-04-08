@@ -188,7 +188,7 @@ hooks = [
 
 # 5. work modes
 modes = ['train']#, 'val']
-max_epochs = 631
+max_epochs = 630
 
 # 6. checkpoint
 weights = dict(
