@@ -620,7 +620,7 @@ class RandomSquareCrop(object):
                 mask_key = self.bbox2mask.get(key)
                 if mask_key in results:
                     results[mask_key] = results[mask_key][mask.nonzero()
-                                                            [0]].crop(patch)
+                                                          [0]].crop(patch)
 
             # adjust the img no matter whether the gt is empty before crop
             img = img[patch[1]:patch[3], patch[0]:patch[2]]
