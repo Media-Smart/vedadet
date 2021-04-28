@@ -37,7 +37,7 @@ def average_precision(recalls, precisions, mode='area'):
         for i in range(mpre.shape[1] - 1, 0, -1):
             mpre[:, i - 1] = np.maximum(mpre[:, i - 1], mpre[:, i])
         for i in range(num_scales):
-            ind = np.where(mrec[i,  1:] != mrec[i, :-1])[0]
+            ind = np.where(mrec[i, 1:] != mrec[i, :-1])[0]
             ap[i] = np.sum(
                 (mrec[i, ind + 1] - mrec[i, ind]) * mpre[i, ind + 1])
     elif mode == '11points':
