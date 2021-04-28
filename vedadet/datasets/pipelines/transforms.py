@@ -565,75 +565,73 @@ class RandomSquareCrop(object):
         boxes = np.concatenate(boxes, 0)
         h, w, c = img.shape
 
-        while True:
+        # while True:
 
-            if self.crop_ratio_range is not None:
-                scale = np.random.uniform(self.crop_ratio_min,
-                                          self.crop_ratio_max)
-            elif self.crop_choice is not None:
-                scale = np.random.choice(self.crop_choice)
+        if self.crop_ratio_range is not None:
+            scale = np.random.uniform(
+                self.crop_ratio_min,
+                self.crop_ratio_max,
+            )
+        elif self.crop_choice is not None:
+            scale = np.random.choice(self.crop_choice)
 
-            # print(scale, img.shape[:2], boxes)
-            # import cv2
-            # cv2.imwrite('aaa.png', img)
+        for i in range(250):
+            short_side = min(w, h)
+            cw = int(scale * short_side)
+            ch = cw
 
-            for i in range(250):
-                short_side = min(w, h)
-                cw = int(scale * short_side)
-                ch = cw
+            # TODO +1
+            left = random.uniform(w - cw)
+            top = random.uniform(h - ch)
 
-                # TODO +1
-                left = random.uniform(w - cw)
-                top = random.uniform(h - ch)
+            patch = np.array(
+                (int(left), int(top), int(left + cw), int(top + ch)))
 
-                patch = np.array(
-                    (int(left), int(top), int(left + cw), int(top + ch)))
+            # center of boxes should inside the crop img
+            # only adjust boxes and instance masks when the gt is not empty
+            # adjust boxes
+            def is_center_of_bboxes_in_patch(boxes, patch):
+                # TODO >=
+                center = (boxes[:, :2] + boxes[:, 2:]) / 2
+                mask = ((center[:, 0] > patch[0]) *
+                        (center[:, 1] > patch[1]) *
+                        (center[:, 0] < patch[2]) *
+                        (center[:, 1] < patch[3]))
+                return mask
 
-                # center of boxes should inside the crop img
-                # only adjust boxes and instance masks when the gt is not empty
-                # adjust boxes
-                def is_center_of_bboxes_in_patch(boxes, patch):
-                    # TODO >=
-                    center = (boxes[:, :2] + boxes[:, 2:]) / 2
-                    mask = ((center[:, 0] > patch[0]) *
-                            (center[:, 1] > patch[1]) *
-                            (center[:, 0] < patch[2]) *
-                            (center[:, 1] < patch[3]))
-                    return mask
-
+            mask = is_center_of_bboxes_in_patch(boxes, patch)
+            if not mask.any() and not i == 249:
+                continue
+            for key in results.get('bbox_fields', []):
+                boxes = results[key].copy()
                 mask = is_center_of_bboxes_in_patch(boxes, patch)
-                if not mask.any():
-                    continue
-                for key in results.get('bbox_fields', []):
-                    boxes = results[key].copy()
-                    mask = is_center_of_bboxes_in_patch(boxes, patch)
-                    boxes = boxes[mask]
-                    boxes[:, 2:] = boxes[:, 2:].clip(max=patch[2:])
-                    boxes[:, :2] = boxes[:, :2].clip(min=patch[:2])
-                    boxes -= np.tile(patch[:2], 2)
+                boxes = boxes[mask]
+                boxes[:, 2:] = boxes[:, 2:].clip(max=patch[2:])
+                boxes[:, :2] = boxes[:, :2].clip(min=patch[:2])
+                boxes -= np.tile(patch[:2], 2)
 
-                    results[key] = boxes
-                    # labels
-                    label_key = self.bbox2label.get(key)
-                    if label_key in results:
-                        results[label_key] = results[label_key][mask]
+                results[key] = boxes
+                # labels
+                label_key = self.bbox2label.get(key)
+                if label_key in results:
+                    results[label_key] = results[label_key][mask]
 
-                    # mask fields
-                    mask_key = self.bbox2mask.get(key)
-                    if mask_key in results:
-                        results[mask_key] = results[mask_key][mask.nonzero()
-                                                              [0]].crop(patch)
+                # mask fields
+                mask_key = self.bbox2mask.get(key)
+                if mask_key in results:
+                    results[mask_key] = results[mask_key][mask.nonzero()
+                                                            [0]].crop(patch)
 
-                # adjust the img no matter whether the gt is empty before crop
-                img = img[patch[1]:patch[3], patch[0]:patch[2]]
-                results['img'] = img
-                results['img_shape'] = img.shape
+            # adjust the img no matter whether the gt is empty before crop
+            img = img[patch[1]:patch[3], patch[0]:patch[2]]
+            results['img'] = img
+            results['img_shape'] = img.shape
 
-                # seg fields
-                for key in results.get('seg_fields', []):
-                    results[key] = results[key][patch[1]:patch[3],
-                                                patch[0]:patch[2]]
-                return results
+            # seg fields
+            for key in results.get('seg_fields', []):
+                results[key] = results[key][patch[1]:patch[3],
+                                            patch[0]:patch[2]]
+            return results
 
     def __repr__(self):
         repr_str = self.__class__.__name__
