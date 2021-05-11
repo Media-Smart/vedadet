@@ -512,10 +512,10 @@ class RandomCrop(object):
 
 @registry.register_module('pipeline')
 class RandomSquareCrop(object):
-    """Random crop the square patch of image & bboxes with a size from Args
-        (crop_ratio_range or crop_choice) of the short edge of image and
-        keep the overlapped part of box if its center is within the cropped
-        patch.
+    """
+    Random crop the square patch of image & bboxes with a size from Args
+    (crop_ratio_range or crop_choice) of the short edge of image and keep
+    the overlapped part of box if its center is within the cropped patch.
 
     Args:
         crop_ratio_range (list): a list of two elements (min, max)
