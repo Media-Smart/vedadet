@@ -514,7 +514,8 @@ class RandomCrop(object):
 class RandomSquareCrop(object):
     """Random crop the square patch of image & bboxes with a size from Args
         (crop_ratio_range or crop_choice) of the short edge of image and
-        keep the overlapped part of box if its center is within the cropped patch.
+        keep the overlapped part of box if its center is within the cropped
+        patch.
 
     Args:
         crop_ratio_range (list): a list of two elements (min, max)
@@ -619,8 +620,8 @@ class RandomSquareCrop(object):
                 # mask fields
                 mask_key = self.bbox2mask.get(key)
                 if mask_key in results:
-                    results[mask_key] = results[mask_key][mask.nonzero()
-                                                          [0]].crop(patch)
+                    ind = mask.nonzero(as_tuple=False)[0]
+                    results[mask_key] = results[mask_key][ind].crop(patch)
 
             # adjust the img no matter whether the gt is empty before crop
             img = img[patch[1]:patch[3], patch[0]:patch[2]]
