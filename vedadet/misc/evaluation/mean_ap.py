@@ -28,7 +28,7 @@ def average_precision(recalls, precisions, mode='area'):
         precisions = precisions[np.newaxis, :]
     assert recalls.shape == precisions.shape and recalls.ndim == 2
     num_scales = recalls.shape[0]
-    ap = np.zeros(num_scales, dtype=np.float32)
+    ap = np.zeros(num_scales, dtype=np.float64)
     if mode == 'area':
         zeros = np.zeros((num_scales, 1), dtype=recalls.dtype)
         ones = np.ones((num_scales, 1), dtype=recalls.dtype)
@@ -91,8 +91,8 @@ def tpfp_imagenet(det_bboxes,
     num_scales = len(area_ranges)
     # tp and fp are of shape (num_scales, num_gts), each row is tp or fp
     # of a certain scale.
-    tp = np.zeros((num_scales, num_dets), dtype=np.float32)
-    fp = np.zeros((num_scales, num_dets), dtype=np.float32)
+    tp = np.zeros((num_scales, num_dets), dtype=np.float64)
+    fp = np.zeros((num_scales, num_dets), dtype=np.float64)
     if gt_bboxes.shape[0] == 0:
         if area_ranges == [(None, None)]:
             fp[...] = 1
@@ -184,8 +184,8 @@ def tpfp_default(det_bboxes,
     num_scales = len(area_ranges)
     # tp and fp are of shape (num_scales, num_gts), each row is tp or fp of
     # a certain scale
-    tp = np.zeros((num_scales, num_dets), dtype=np.float32)
-    fp = np.zeros((num_scales, num_dets), dtype=np.float32)
+    tp = np.zeros((num_scales, num_dets), dtype=np.float64)
+    fp = np.zeros((num_scales, num_dets), dtype=np.float64)
 
     # if there is no gt bboxes in this image, then all det bboxes
     # within area range are false positives
@@ -259,7 +259,7 @@ def get_cls_results(det_results, annotations, class_id):
             ignore_inds = ann['labels_ignore'] == class_id
             cls_gts_ignore.append(ann['bboxes_ignore'][ignore_inds, :])
         else:
-            cls_gts_ignore.append(np.empty((0, 4), dtype=np.float32))
+            cls_gts_ignore.append(np.empty((0, 4), dtype=np.float64))
 
     return cls_dets, cls_gts, cls_gts_ignore
 
@@ -349,7 +349,7 @@ def eval_map(det_results,
         # calculate recall and precision with tp and fp
         tp = np.cumsum(tp, axis=1)
         fp = np.cumsum(fp, axis=1)
-        eps = np.finfo(np.float32).eps
+        eps = np.finfo(np.float64).eps
         recalls = tp / np.maximum(num_gts[:, np.newaxis], eps)
         precisions = tp / np.maximum((tp + fp), eps)
         # calculate AP
@@ -423,8 +423,8 @@ def print_map_summary(mean_ap,
 
     num_classes = len(results)
 
-    recalls = np.zeros((num_scales, num_classes), dtype=np.float32)
-    aps = np.zeros((num_scales, num_classes), dtype=np.float32)
+    recalls = np.zeros((num_scales, num_classes), dtype=np.float64)
+    aps = np.zeros((num_scales, num_classes), dtype=np.float64)
     num_gts = np.zeros((num_scales, num_classes), dtype=int)
     for i, cls_result in enumerate(results):
         if cls_result['recall'].size > 0:
