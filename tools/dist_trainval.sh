@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if (($# < 2)); then
-    echo "Uasage: bash tools/trainval.sh config_file gpus"
+    echo "Uasage: bash tools/dist_trainval.sh config_file gpus"
     exit 1
 fi
 CONFIG="$1"
