@@ -80,7 +80,7 @@ def trainval(cfg, distributed, logger):
             looper.load_meta(**cfg.meta)
     else:
         if 'optimizer' in cfg:
-            logger.warning('optimizer is not needed in train mode')
+            logger.warning('optimizer is not needed in non-training mode')
         if 'meta' in cfg:
-            logger.warning('meta is not needed in train mode')
+            logger.warning('meta is not needed in non-training mode')
     looper.start(cfg.max_epochs)
